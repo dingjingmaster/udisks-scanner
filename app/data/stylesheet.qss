@@ -1,0 +1,42 @@
+#main-header {
+    margin: 0px;
+    padding: 0px;
+    background-color: rgb(204, 48, 51);
+}
+
+#main-header-title {
+    margin: 0px;
+    padding: 6px 0 0 10px;
+    color: rgba(255, 255, 255, 1);
+    font-size: 20px;
+    font-weight: 400;
+    align: center;
+}
+
+#window-main {
+    border-width: 3px;
+    border-style: solid;
+    border-color: rgb(168, 168, 168);
+}
+
+#main-header-button {
+    margin: 0px;
+    padding: 3px;
+    width: 36px;
+    height: 36px;
+    color: rgb(255, 255, 255);
+}
+
+#button-encryption-apply {
+    color: rgba(255, 255, 255, 1);
+    background-color: rgb(204, 48, 51);
+}
+
+#button-decryption-del {
+}
+
+#split-line {
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(168, 168, 168);
+}

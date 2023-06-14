@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>data/stylesheet.qss</file>
+        <file>data/dsm.png</file>
+        <file>data/dsip.png</file>
+    </qresource>
+</RCC>
