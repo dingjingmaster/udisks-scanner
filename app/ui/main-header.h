@@ -37,7 +37,7 @@ protected:
     void mouseDoubleClickEvent(QMouseEvent*) override;
 
 private:
-    const int               mMaxHeight = 42;
+    const int               mMaxHeight = 46;
 
     QLayout*                mLeftLayout;
     QLayout*                mRightLayout;

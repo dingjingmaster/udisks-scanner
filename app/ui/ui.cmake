@@ -25,4 +25,7 @@ file(GLOB UI_SRC
 
         ${CMAKE_SOURCE_DIR}/app/ui/scanner-task-delegate.h
         ${CMAKE_SOURCE_DIR}/app/ui/scanner-task-delegate.cpp
+
+        ${CMAKE_SOURCE_DIR}/app/ui/task-trace.h
+        ${CMAKE_SOURCE_DIR}/app/ui/task-trace.cpp
         )

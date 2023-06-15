@@ -20,6 +20,8 @@ public:
 protected:
     void resizeEvent(QResizeEvent *event) override;
 
+Q_SIGNALS:
+    void taskDetail(const QString& taskID);
 
 private:
     QComboBox*              mComboBox = nullptr;

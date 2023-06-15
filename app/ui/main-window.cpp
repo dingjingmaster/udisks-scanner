@@ -74,6 +74,15 @@ MainWindow::MainWindow (QWidget *parent)
 
     });
 
+    connect (mWindow1, qOverload<const QString&>(&MainWidget1::taskDetail), this, [=] (const QString& id) {
+        mWindow1->hide();
+        mWindow2->show();
+    });
+
+    connect (mWindow2, qOverload<>(&MainWidget2::showTaskList), this, [=] () {
+        mWindow2->hide();
+        mWindow1->show();
+    });
 }
 
 void MainWindow::mouseMoveEvent(QMouseEvent* e)
@@ -87,7 +96,12 @@ void MainWindow::mouseMoveEvent(QMouseEvent* e)
     if (!mIsPress) {
         region (globalPos);
     }
-    else {
+
+    if (!(Qt::LeftButton & e->buttons())) {
+        return;
+    }
+
+    {
         if (NONE != mDirection) {
             QRect rMove (tl, rb);
             switch (mDirection) {

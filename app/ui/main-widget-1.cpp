@@ -99,6 +99,8 @@ MainWidget1::MainWidget1(QWidget *parent)
 
     mView->horizontalHeader()->setSectionsClickable (false);
 
+    connect (mView, qOverload<const QString&>(&ScannerView::taskDetail), this, qOverload<const QString&>(&MainWidget1::taskDetail));
+
 #if 1
     // test
     mModel->test();

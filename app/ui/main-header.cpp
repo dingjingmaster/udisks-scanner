@@ -13,7 +13,7 @@ MainHeader::MainHeader (QWidget *parent)
     setAttribute(Qt::WidgetAttribute::WA_StyledBackground);
 
     mMainLayout = new QHBoxLayout;
-    mMainLayout->setContentsMargins(0, 0, 0, 0);
+    mMainLayout->setContentsMargins(0, 0, 0, 6);
 
     mHeaderName = new QLabel;
     mHeaderName->setObjectName("main-header-title");

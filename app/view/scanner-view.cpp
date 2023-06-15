@@ -80,9 +80,12 @@ void ScannerView::mouseMoveEvent(QMouseEvent *event)
 void ScannerView::mouseReleaseEvent(QMouseEvent *event)
 {
     QModelIndex idx = indexAt(event->pos());
+    if (!idx.isValid()) {
+        return;
+    }
 
+    auto item = static_cast<ScannerTaskItem*>(idx.internalPointer());
     if (6 == idx.column()) {
-        auto item = static_cast<ScannerTaskItem*>(idx.internalPointer());
         QRect rect = QTableView::visualRect (idx);
 
         static const int mlr = 5;
@@ -111,24 +114,20 @@ void ScannerView::mouseReleaseEvent(QMouseEvent *event)
         QRect sc(startX5, startY, fSize2, h);
 
         if (qd.contains (event->pos())) {
-//            qDebug() << "start";
             Q_EMIT taskStart();
         }
         else if (zt.contains (event->pos())) {
-//            qDebug() << "pause";
             Q_EMIT taskPause();
         }
         else if (tz.contains (event->pos())) {
-//            qDebug() << "stop";
             Q_EMIT taskStop();
         }
         else if (sc.contains (event->pos())) {
-//            qDebug() << "delete";
             Q_EMIT taskDelete();
         }
     }
     else if (8 == idx.column()) {
-
+        Q_EMIT taskDetail(item->getID());
     }
 
     QAbstractItemView::mouseReleaseEvent (event);
