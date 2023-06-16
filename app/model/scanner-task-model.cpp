@@ -17,7 +17,6 @@ ScannerTaskModel::ScannerTaskModel(QObject *parent)
 //    connect(mScanTaskHelper, &ScanTaskHelper::updateTask, this, &ScannerTaskModel::updateItem);
 //    connect(mScanTaskHelper, qOverload<ScannerTaskItem*>(&ScanTaskHelper::delOldTask), this, &ScannerTaskModel::delItem);
 
-    qInfo() << "scan task model ...";
 //    Q_EMIT DBManager::instance ()->refreshScanTask();
 }
 
@@ -68,8 +67,6 @@ void ScannerTaskModel::addItem(ScannerTaskItem* item)
 {
     if (!item)      return;
 
-//    qDebug() << "add task item: " << item->getName();
-
     mDataLocker.lock();
     mData.append(item);
     mDataLocker.unlock();
@@ -95,8 +92,6 @@ void ScannerTaskModel::delItem(ScannerTaskItem *item)
 void ScannerTaskModel::updateItem(ScannerTaskItem *item)
 {
     if (!item)      return;
-
-//    qInfo() << "update task: " << item->getName();
 
     QModelIndex idx = getIndexByItem (item);
     if (idx.isValid () && (mCurIndex - 10 < idx.row()) && (mCurIndex + 30 > idx.row())) {

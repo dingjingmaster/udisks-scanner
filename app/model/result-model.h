@@ -13,7 +13,7 @@ class ResultModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-//    enum { TaskIndex = 1, TaskName, TaskPolicy, TaskScanPath, TaskStartTime, TaskStatus, TaskProgress, TaskDetail, EnumSize };
+    enum { FileName = 1, FilePath, ScanTime, EnumSize };
 public:
     explicit ResultModel (QObject *parent = nullptr);
     ~ResultModel() override;

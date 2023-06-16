@@ -24,7 +24,7 @@ Q_SIGNALS:
     void updateView ();
 
 private:
-    float            mCurPos;
+    float            mCurPos{};
 };
 
 #endif // SCANNERVIEW_H

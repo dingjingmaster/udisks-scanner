@@ -5,6 +5,8 @@
 #include "main-widget-2.h"
 
 #include <QLabel>
+#include <QHeaderView>
+#include <QVBoxLayout>
 #include <QApplication>
 
 #include "task-trace.h"
@@ -116,5 +118,34 @@ MainWidget2::MainWidget2(QWidget *parent)
 
     setLayout (mMainLayout);
 
+    mView->horizontalHeader()->setSectionsClickable (false);
+    mView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    mView->setSelectionMode (QAbstractItemView::SingleSelection);
+//    mView->horizontalHeader()->setSelectionMode (QHeaderView::SingleSelection);
+
     connect (btn1, qOverload<>(&PushButton::clicked), this, qOverload<>(&MainWidget2::showTaskList));
+
+#if 1
+    mModel->test();
+#endif
+}
+
+void MainWidget2::resizeEvent(QResizeEvent *event)
+{
+    if (!mView || !mView->horizontalHeader()) return;
+
+    mView->horizontalHeader()->resizeSection (0, mItemIdxSize);
+    mView->horizontalHeader()->resizeSection (3, mItemTimeSize);
+
+    int w = mView->width()          \
+        - mItemIdxSize              \
+        - mItemTimeSize             \
+        - contentsMargins().left()  \
+        - contentsMargins().right() \
+        - 23;
+
+    mView->horizontalHeader()->resizeSection (1, (int) (w * 0.4));
+    mView->horizontalHeader()->resizeSection (2, (int) (w * 0.6));
+
+    QWidget::resizeEvent (event);
 }

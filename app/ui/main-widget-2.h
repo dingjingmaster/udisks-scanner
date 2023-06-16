@@ -16,10 +16,16 @@ class MainWidget2 : public QWidget
 public:
     explicit MainWidget2(QWidget* parent=nullptr);
 
+protected:
+    void resizeEvent(QResizeEvent *event) override;
+
 Q_SIGNALS:
     void showTaskList();
 
 private:
+    const int               mItemIdxSize = 90;
+    const int               mItemTimeSize = 200;
+
     QVBoxLayout*            mMainLayout = nullptr;
     ResultView*             mView = nullptr;
     ResultModel*            mModel = nullptr;
