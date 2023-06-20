@@ -1,5 +1,7 @@
 #include "scanner-task-model.h"
 
+#include <glib.h>
+
 #include <QFont>
 #include <QSize>
 #include <QDebug>
@@ -10,21 +12,26 @@
 //#include "../utils/scan-task-helper.h"
 
 ScannerTaskModel::ScannerTaskModel(QObject *parent)
-    : QAbstractTableModel{parent}//, mScanTaskHelper(DBManager::instance ()->getTaskHelper ())
+    : QAbstractTableModel{parent},
+    mScanTaskDB(ScanTaskDB::getInstance())
 {
-    // 数据库与model连接
-//    connect(mScanTaskHelper, &ScanTaskHelper::addNewTask, this, &ScannerTaskModel::addItem);
-//    connect(mScanTaskHelper, &ScanTaskHelper::updateTask, this, &ScannerTaskModel::updateItem);
-//    connect(mScanTaskHelper, qOverload<ScannerTaskItem*>(&ScanTaskHelper::delOldTask), this, &ScannerTaskModel::delItem);
+    connect (mScanTaskDB, &ScanTaskDB::addTasks, this, [=] (QList<QString>& ls) {
+        beginInsertRows (QModelIndex(), mScanTaskDB->rowCount(), mScanTaskDB->rowCount() + ls.count() - 1);
+        endInsertRows();
+    });
 
-//    Q_EMIT DBManager::instance ()->refreshScanTask();
+    connect (mScanTaskDB, &ScanTaskDB::delTasks, this, [=] (QList<QString>& ls) {
+        for (const auto& it : ls) {
+            auto row = mScanTaskDB->getRowByItemID(it);
+            beginRemoveRows (QModelIndex(), row, 1);
+            endRemoveRows();
+        }
+    });
 }
 
 ScannerTaskModel::~ScannerTaskModel()
 {
-    mDataLocker.lock();
-    mData.clear();
-    mDataLocker.unlock();
+
 }
 
 QModelIndex ScannerTaskModel::getIndexByItem(const ScannerTaskItem* item, int column)
@@ -34,20 +41,20 @@ QModelIndex ScannerTaskModel::getIndexByItem(const ScannerTaskItem* item, int co
         return {};
     }
 
-    mDataLocker.lock();
-
-    int rows = rowCount(QModelIndex());
-    for (auto i = 0; i < rows; ++i) {
-        QModelIndex ii = index(i, column);
-        auto it = static_cast <const ScannerTaskItem*> (ii.internalPointer());
-        if (it == item) {
-            mDataLocker.unlock();
-            return ii;
-        }
-    }
-
-    qDebug() << "item not found!";
-    mDataLocker.unlock();
+//    mDataLocker.lock();
+//
+//    int rows = rowCount(QModelIndex());
+//    for (auto i = 0; i < rows; ++i) {
+//        QModelIndex ii = index(i, column);
+//        auto it = static_cast <const ScannerTaskItem*> (ii.internalPointer());
+//        if (it == item) {
+//            mDataLocker.unlock();
+//            return ii;
+//        }
+//    }
+//
+//    qDebug() << "item not found!";
+//    mDataLocker.unlock();
 
     return {};
 }
@@ -55,9 +62,9 @@ QModelIndex ScannerTaskModel::getIndexByItem(const ScannerTaskItem* item, int co
 void ScannerTaskModel::resetModel()
 {
     beginResetModel ();
-    mDataLocker.lock();
-    mData.clear ();
-    mDataLocker.unlock();
+//    mDataLocker.lock();
+//    mData.clear ();
+//    mDataLocker.unlock();
     endResetModel ();
 
 //    mScanTaskHelper->reset();
@@ -67,26 +74,18 @@ void ScannerTaskModel::addItem(ScannerTaskItem* item)
 {
     if (!item)      return;
 
-    mDataLocker.lock();
-    mData.append(item);
-    mDataLocker.unlock();
 
-    insertRows(mData.count() - 1, 1);
+
+//    insertRows(mData.count() - 1, 1);
 }
 
-void ScannerTaskModel::delItem(ScannerTaskItem *item)
+void ScannerTaskModel::delItem(const std::shared_ptr<ScannerTaskItem>& item)
 {
     if (!item)      return;
 
     qInfo() << "delete task: " << item->getName();
-    QModelIndex idx = getIndexByItem (item);
 
-    mDataLocker.lock();
-    if (idx.isValid()) {
-        removeRow (idx.row ());
-    }
-    if (mData.contains(item)) mData.removeOne (item);
-    mDataLocker.unlock();
+    mScanTaskDB->delItemById (item->getID());
 }
 
 void ScannerTaskModel::updateItem(ScannerTaskItem *item)
@@ -102,7 +101,9 @@ void ScannerTaskModel::updateItem(ScannerTaskItem *item)
 
 int ScannerTaskModel::rowCount(const QModelIndex &parent) const
 {
-    return mData.count();
+    g_return_val_if_fail(mScanTaskDB, 0);
+
+    return mScanTaskDB->rowCount();
 }
 
 int ScannerTaskModel::columnCount(const QModelIndex &parent) const
@@ -114,10 +115,10 @@ QVariant ScannerTaskModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())       return {};
 
-    auto item = static_cast<ScannerTaskItem*>(index.internalPointer());
-    if (!item)      return {};
+    auto idb = static_cast<ScanTaskDB*>(index.internalPointer());
+    if (!idb)      return {};
+    auto item = idb->getItemByIndex (index.row());
 
-//    enum { TaskIndex = 1, TaskName, TaskPolicy, TaskScanPath, TaskStartTime, TaskStatus, TaskProgress, TaskDetail, EnumSize };
     if (Qt::DisplayRole == role) {
         switch (index.column()) {
             case TaskIndex:     return index.row() + 1;
@@ -204,10 +205,10 @@ QVariant ScannerTaskModel::headerData(int section, Qt::Orientation orentation, i
 QModelIndex ScannerTaskModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!parent.isValid()) {
-        if (row < 0 || row > mData.count() - 1) {
+        if (row < 0 || row > mScanTaskDB->rowCount() - 1) {
             return {};
         }
-        return createIndex(row, column, mData.at(row));
+        return createIndex(row, column, mScanTaskDB);
     }
 
     return {};
@@ -246,9 +247,9 @@ void ScannerTaskModel::onScrollbarMoved(float ratio)
 void ScannerTaskModel::clearData()
 {
     beginResetModel ();
-    mDataLocker.lock();
-    mData.clear ();
-    mDataLocker.unlock();
+//    mDataLocker.lock();
+//    mData.clear ();
+//    mDataLocker.unlock();
     endResetModel ();
 
 //    mScanTaskHelper->reset();
@@ -257,6 +258,7 @@ void ScannerTaskModel::clearData()
 void ScannerTaskModel::test()
 {
     beginResetModel();
+#if 0
     mDataLocker.lock();
 
     auto item = new ScannerTaskItem("1", "name 1", QStringList()<<"1"<<"2", "path1", 0, ScannerTaskItem::Unknow, 0);
@@ -389,5 +391,6 @@ void ScannerTaskModel::test()
     mData.append(item);
 
     mDataLocker.unlock();
+#endif
     endResetModel();
 }

@@ -6,6 +6,7 @@
 #include <QFontMetrics>
 #include <QApplication>
 
+#include "db/scan-task-db.h"
 #include "model/scanner-task-item.h"
 
 ScannerView::ScannerView(QWidget *parent)
@@ -29,7 +30,10 @@ void ScannerView::mouseMoveEvent(QMouseEvent *event)
     QModelIndex idx = indexAt(event->pos());
 
     if (6 == idx.column()) {
-        auto item = static_cast<ScannerTaskItem*>(idx.internalPointer());
+        auto db = static_cast<ScanTaskDB*>(idx.internalPointer());
+        if (!db) return;
+        auto item = db->getItemByIndex (idx.row());
+        if (!item) return;
         QRect rect = QTableView::visualRect (idx);
 
         static const int mlr = 5;
@@ -57,14 +61,56 @@ void ScannerView::mouseMoveEvent(QMouseEvent *event)
         int startX5 = startX4 + fSize2 + mlr;
         QRect sc(startX5, startY, fSize2, h);
 
-        if (qd.contains (event->pos())
-            || zt.contains (event->pos())
-            || tz.contains (event->pos())
-            || sc.contains (event->pos())) {
-            setCursor (Qt::PointingHandCursor);
-        }
-        else {
-            setCursor (Qt::ArrowCursor);
+        switch (item->getStatus()) {
+            case ScannerTaskItem::NoBegin: {
+                if (qd.contains (event->pos()) || sc.contains (event->pos())) {
+                    setCursor (Qt::PointingHandCursor);
+                }
+                else {
+                    setCursor (Qt::ArrowCursor);
+                }
+                break;
+            }
+            case ScannerTaskItem::Scanning: {
+                if (zt.contains (event->pos()) || tz.contains (event->pos())) {
+                    setCursor (Qt::PointingHandCursor);
+                }
+                else {
+                    setCursor (Qt::ArrowCursor);
+                }
+                break;
+            }
+            case ScannerTaskItem::Stop: {
+                if (qd.contains (event->pos()) || sc.contains (event->pos())) {
+                    setCursor (Qt::PointingHandCursor);
+                }
+                else {
+                    setCursor (Qt::ArrowCursor);
+                }
+                break;
+            }
+            case ScannerTaskItem::Finish: {
+                if (qd.contains (event->pos()) || sc.contains (event->pos())) {
+                    setCursor (Qt::PointingHandCursor);
+                }
+                else {
+                    setCursor (Qt::ArrowCursor);
+                }
+                break;
+            }
+            case ScannerTaskItem::Suspended: {
+                if (zt.contains (event->pos()) || tz.contains (event->pos()) || sc.contains (event->pos())) {
+                    setCursor (Qt::PointingHandCursor);
+                }
+                else {
+                    setCursor (Qt::ArrowCursor);
+                }
+                break;
+            }
+            default: {
+//                setCursor (Qt::ArrowCursor);
+                break;
+            }
         }
     }
     else if (8 == idx.column()) {
@@ -84,7 +130,10 @@ void ScannerView::mouseReleaseEvent(QMouseEvent *event)
         return;
     }
 
-    auto item = static_cast<ScannerTaskItem*>(idx.internalPointer());
+    auto db = static_cast<ScanTaskDB*>(idx.internalPointer());
+    if (!db) return;
+    auto item = db->getItemByIndex (idx.row());
+    if (!item) return;
     if (6 == idx.column()) {
         QRect rect = QTableView::visualRect (idx);
 
@@ -113,17 +162,45 @@ void ScannerView::mouseReleaseEvent(QMouseEvent *event)
         int startX5 = startX4 + fSize2 + mlr;
         QRect sc(startX5, startY, fSize2, h);
 
-        if (qd.contains (event->pos())) {
-            Q_EMIT taskStart();
-        }
-        else if (zt.contains (event->pos())) {
-            Q_EMIT taskPause();
-        }
-        else if (tz.contains (event->pos())) {
-            Q_EMIT taskStop();
-        }
-        else if (sc.contains (event->pos())) {
-            Q_EMIT taskDelete();
+        switch (item->getStatus()) {
+            case ScannerTaskItem::NoBegin: {
+                if (qd.contains (event->pos())) {
+                    Q_EMIT taskStart();
+                } else if (sc.contains (event->pos())) {
+                    Q_EMIT taskDelete();
+                }
+                break;
+            }
+            case ScannerTaskItem::Scanning: {
+                if (zt.contains (event->pos())) {
+                    Q_EMIT taskPause();
+                } else if (tz.contains (event->pos())) {
+                    Q_EMIT taskStop();
+                }
+                break;
+            }
+            case ScannerTaskItem::Stop:
+            case ScannerTaskItem::Finish: {
+                if (qd.contains (event->pos())) {
+                    Q_EMIT taskStart();
+                } else if (sc.contains (event->pos())) {
+                    Q_EMIT taskDelete();
+                }
+                break;
+            }
+            case ScannerTaskItem::Suspended: {
+                if (zt.contains (event->pos())) {
+                    Q_EMIT taskGoOn();
+                } else if (tz.contains (event->pos())) {
+                    Q_EMIT taskStop();
+                } else if (sc.contains (event->pos())) {
+                    Q_EMIT taskDelete();
+                }
+                break;
+            }
+            default: {
+                break;
+            }
         }
     }
     else if (8 == idx.column()) {

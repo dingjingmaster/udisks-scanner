@@ -30,6 +30,7 @@ find_package(Qt5LinguistTools REQUIRED)
 find_package(Qt5 COMPONENTS Core Widgets Network Gui X11Extras REQUIRED)
 
 pkg_check_modules(GIO REQUIRED gio-2.0)
+pkg_check_modules(SQLITE3 REQUIRED sqlite3)
 
 cmake_host_system_information(RESULT OS QUERY OS_NAME)
 cmake_host_system_information(RESULT RELEASE QUERY OS_RELEASE)
@@ -46,4 +47,8 @@ MESSAGE(STATUS "Qt Version      : '${CUR_QT_VERSION}'")
 MESSAGE("")
 
 
+include_directories(${CMAKE_SOURCE_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/app)
+
 add_subdirectory(app)
+add_subdirectory(tools)

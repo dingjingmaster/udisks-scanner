@@ -58,7 +58,7 @@ void ScannerTaskItem::setScanProgress(float scanProgress)
 
 void ScannerTaskItem::setScanPath(QString scanPath)
 {
-    mScanPath = std::move(scanPath);
+    mScanPath = scanPath.split ("|");
 }
 
 void ScannerTaskItem::setStartTime(qint64 startTime)
@@ -68,7 +68,36 @@ void ScannerTaskItem::setStartTime(qint64 startTime)
 
 void ScannerTaskItem::setStatus(int status)
 {
-    mStatus = (ScannerTaskItem::Status) status;
+    //enum Status { Unknow = -1, NoBegin = 0, Scanning, Stop, Finish, Suspended = 4, Continue = 5, Error = 13 }; Q_ENUM(Status)
+    switch (status) {
+        case 0: {
+            mStatus = NoBegin;
+            break;
+        }
+        case 1: {
+            mStatus = Scanning;
+            break;
+        }
+        case 2: {
+            mStatus = Stop;
+            break;
+        }
+        case 3: {
+            mStatus = Finish;
+            break;
+        }
+        case 4: {
+            mStatus = Suspended;
+            break;
+        }
+        case 5: {
+            mStatus = Continue;
+            break;
+        }
+        default: {
+            mStatus = NoBegin;
+        }
+    }
 }
 
 void ScannerTaskItem::setStatus(ScannerTaskItem::Status status)
@@ -93,7 +122,7 @@ QStringList ScannerTaskItem::getPolicy()
 
 QString ScannerTaskItem::getScanPath()
 {
-    return mScanPath;
+    return mScanPath.join (";");
 }
 
 qint64 ScannerTaskItem::getStartTime() const
@@ -106,8 +135,11 @@ ScannerTaskItem::Status ScannerTaskItem::getStatus()
     return mStatus;
 }
 
-float ScannerTaskItem::getScanProgress() const
+float ScannerTaskItem::getScanProgress()
 {
+    mScanProgress = (float) mFinishedFile / (float) mAllFile;
+    if (mScanProgress > 1) mScanProgress = 1;
+
     return mScanProgress;
 }
 
@@ -118,6 +150,40 @@ bool ScannerTaskItem::getIsChecked() const
 
 QString ScannerTaskItem::getStartTimeStr() const
 {
-    return "2023-12-12_06:08:00";
+    return QDateTime::fromSecsSinceEpoch (mStartTime).toString ("yyyy-MM-dd hh:mm:ss");
+}
+
+void ScannerTaskItem::setPolicy(QString policy)
+{
+    mPolicy = policy.split ("|");
+}
+
+void ScannerTaskItem::setScanOutPath(QString scanOutPath)
+{
+    mScanOutPath = scanOutPath.split ("|");
+}
+
+void ScannerTaskItem::setAllFile(qint64 f)
+{
+    mAllFile = f;
+}
+
+void ScannerTaskItem::setFinishedFile(qint64 f)
+{
+    mFinishedFile = f;
+}
+
+int ScannerTaskItem::getFinishedFile()
+{
+    if (mFinishedFile < 0) mFinishedFile = 0;
+
+    return (int) mFinishedFile;
+}
+
+int ScannerTaskItem::getAllFile()
+{
+    if (mAllFile < 0) mAllFile = 0;
+
+    return (int) mAllFile;
 }
 

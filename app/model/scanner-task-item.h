@@ -16,9 +16,13 @@ public:
 
     void setID (QString id);
     void setName (QString name);
+    void setPolicy (QString policy);
     void setPolicy (QStringList policy);
     void setScanPath (QString scanPath);
+    void setScanOutPath (QString scanOutPath);
     void setStartTime (qint64 startTime);
+    void setAllFile (qint64 f);
+    void setFinishedFile (qint64 f);
     void setStatus (int status);
     void setStatus (Status status);
     void setScanProgress(float scanProgress);
@@ -30,16 +34,22 @@ public:
     [[nodiscard]] qint64 getStartTime () const;
     [[nodiscard]] QString getStartTimeStr () const;
     [[nodiscard]] Status getStatus ();
-    [[nodiscard]] float getScanProgress() const;
+    [[nodiscard]] int getFinishedFile();
+    [[nodiscard]] int getAllFile();
+    [[nodiscard]] float getScanProgress();
     [[nodiscard]] bool getIsChecked() const;
 
 private:
     QString                 mID;
     QString                 mName;
     QStringList             mPolicy;
-    QString                 mScanPath;
+    QStringList             mScanPath;
+    QStringList             mScanOutPath;
     qint64                  mStartTime;
     Status                  mStatus;
+
+    qint64                  mAllFile;
+    qint64                  mFinishedFile;
     float                   mScanProgress;
 
     bool                    mIsChecked = false;

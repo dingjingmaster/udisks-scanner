@@ -1,12 +1,14 @@
 #ifndef SCANNERTASKMODEL_H
 #define SCANNERTASKMODEL_H
 
-#include <QAbstractTableModel>
+#include <memory>
 #include <QtCore/QMutex>
+#include <QAbstractTableModel>
 
+#include "db/scan-task-db.h"
+#include "db/scan-task-db.h"
 #include "scanner-task-item.h"
 
-//class ScanTaskHelper;
 
 class ScannerTaskModel : public QAbstractTableModel
 {
@@ -29,7 +31,7 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void addItem (ScannerTaskItem* item);
-    void delItem (ScannerTaskItem* item);
+    void delItem (const std::shared_ptr<ScannerTaskItem>& item);
     void updateItem (ScannerTaskItem* item);
     void onScrollbarMoved (float ratio);
 
@@ -54,11 +56,7 @@ private:
 
     int                                                 mCurIndex = 0;
 
-//    ScanTaskHelper*                                     mScanTaskHelper;
-
-    // ScannerxxItem
-    QList<ScannerTaskItem*>                             mData;
-    QMutex                                              mDataLocker;
+    ScanTaskDB*                                         mScanTaskDB = nullptr;
 };
 
 #endif // SCANNERTASKMODEL_H

@@ -26,7 +26,9 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
     Q_UNUSED(index);
 
     // 绘制背景
-    auto item = static_cast<ScannerTaskItem*>(index.internalPointer());
+    auto db = static_cast<ScanTaskDB*>(index.internalPointer());
+    if (!db) { return;}
+    auto item = db->getItemByIndex (index.row());
     if (!item) { return;}
 
     p->save();
@@ -75,24 +77,143 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
             int startX1 = rect.left() + (w - 4 * mStatusMargin - fSize1 - 4 * fSize2) / 2;
             int startY = rect.top() + (rect.height() - mStatusHigh) / 2;
 
-            QRect st(startX1, startY, fSize1, mStatusHigh);
-            p->drawText (st, "扫描中  |");
+            switch (item->getStatus()) {
+                case ScannerTaskItem::NoBegin: {
+                    QRect st(startX1, startY, fSize1, mStatusHigh);
+                    p->drawText (st, "未开始  |");
 
-            int startX2 = startX1 + fSize1 + mStatusMargin;
-            QRect qd(startX2, startY, fSize2, mStatusHigh);
-            p->drawText (qd, "启动");
+                    int startX2 = startX1 + fSize1 + mStatusMargin;
+                    QRect qd(startX2, startY, fSize2, mStatusHigh);
+                    p->save();
+                    p->setPen(Qt::blue);
+                    p->drawText (qd, "启动");
+                    p->restore();
 
-            int startX3 = startX2 + fSize2 + mStatusMargin;
-            QRect zt(startX3, startY, fSize2, mStatusHigh);
-            p->drawText (zt, "暂停");
+                    int startX3 = startX2 + fSize2 + mStatusMargin;
+                    QRect zt(startX3, startY, fSize2, mStatusHigh);
+                    p->drawText (zt, "暂停");
 
-            int startX4 = startX3 + fSize2 + mStatusMargin;
-            QRect tz(startX4, startY, fSize2, mStatusHigh);
-            p->drawText (tz, "停止");
+                    int startX4 = startX3 + fSize2 + mStatusMargin;
+                    QRect tz(startX4, startY, fSize2, mStatusHigh);
+                    p->drawText (tz, "停止");
 
-            int startX5 = startX4 + fSize2 + mStatusMargin;
-            QRect sc(startX5, startY, fSize2, mStatusHigh);
-            p->drawText (sc, "删除");
+                    int startX5 = startX4 + fSize2 + mStatusMargin;
+                    QRect sc(startX5, startY, fSize2, mStatusHigh);
+                    p->save();
+                    p->setPen(Qt::blue);
+                    p->drawText (sc, "删除");
+                    p->restore();
+                    break;
+                }
+                case ScannerTaskItem::Scanning: {
+                    QRect st(startX1, startY, fSize1, mStatusHigh);
+                    p->drawText (st, "扫描中  |");
+
+                    int startX2 = startX1 + fSize1 + mStatusMargin;
+                    QRect qd(startX2, startY, fSize2, mStatusHigh);
+                    p->drawText (qd, "启动");
+
+                    int startX3 = startX2 + fSize2 + mStatusMargin;
+                    QRect zt(startX3, startY, fSize2, mStatusHigh);
+                    p->save();
+                    p->setPen(Qt::blue);
+                    p->drawText (zt, "暂停");
+                    p->restore();
+
+                    p->save();
+                    p->setPen(Qt::blue);
+                    int startX4 = startX3 + fSize2 + mStatusMargin;
+                    QRect tz(startX4, startY, fSize2, mStatusHigh);
+                    p->drawText (tz, "停止");
+                    p->restore();
+
+                    int startX5 = startX4 + fSize2 + mStatusMargin;
+                    QRect sc(startX5, startY, fSize2, mStatusHigh);
+                    p->drawText (sc, "删除");
+                    break;
+                }
+                case ScannerTaskItem::Stop: {
+                    QRect st(startX1, startY, fSize1, mStatusHigh);
+                    p->drawText (st, "已停止  |");
+
+                    p->save();
+                    p->setPen(Qt::blue);
+                    int startX2 = startX1 + fSize1 + mStatusMargin;
+                    QRect qd(startX2, startY, fSize2, mStatusHigh);
+                    p->drawText (qd, "启动");
+                    p->restore();
+
+                    int startX3 = startX2 + fSize2 + mStatusMargin;
+                    QRect zt(startX3, startY, fSize2, mStatusHigh);
+                    p->drawText (zt, "暂停");
+
+                    int startX4 = startX3 + fSize2 + mStatusMargin;
+                    QRect tz(startX4, startY, fSize2, mStatusHigh);
+                    p->drawText (tz, "停止");
+
+                    p->save();
+                    p->setPen(Qt::blue);
+                    int startX5 = startX4 + fSize2 + mStatusMargin;
+                    QRect sc(startX5, startY, fSize2, mStatusHigh);
+                    p->drawText (sc, "删除");
+                    p->restore();
+                    break;
+                }
+                case ScannerTaskItem::Finish: {
+                    QRect st(startX1, startY, fSize1, mStatusHigh);
+                    p->drawText (st, "已完成  |");
+
+                    p->save();
+                    p->setPen(Qt::blue);
+                    int startX2 = startX1 + fSize1 + mStatusMargin;
+                    QRect qd(startX2, startY, fSize2, mStatusHigh);
+                    p->drawText (qd, "启动");
+                    p->restore();
+
+                    int startX3 = startX2 + fSize2 + mStatusMargin;
+                    QRect zt(startX3, startY, fSize2, mStatusHigh);
+                    p->drawText (zt, "暂停");
+
+                    int startX4 = startX3 + fSize2 + mStatusMargin;
+                    QRect tz(startX4, startY, fSize2, mStatusHigh);
+                    p->drawText (tz, "停止");
+
+                    p->save();
+                    p->setPen(Qt::blue);
+                    int startX5 = startX4 + fSize2 + mStatusMargin;
+                    QRect sc(startX5, startY, fSize2, mStatusHigh);
+                    p->drawText (sc, "删除");
+                    p->restore();
+                    break;
+                }
+                case ScannerTaskItem::Suspended: {
+                    QRect st(startX1, startY, fSize1, mStatusHigh);
+                    p->drawText (st, "已暂停  |");
+
+                    int startX2 = startX1 + fSize1 + mStatusMargin;
+                    QRect qd(startX2, startY, fSize2, mStatusHigh);
+                    p->drawText (qd, "启动");
+
+                    p->save();
+                    p->setPen(Qt::blue);
+                    int startX3 = startX2 + fSize2 + mStatusMargin;
+                    QRect zt(startX3, startY, fSize2, mStatusHigh);
+                    p->drawText (zt, "继续");
+
+                    int startX4 = startX3 + fSize2 + mStatusMargin;
+                    QRect tz(startX4, startY, fSize2, mStatusHigh);
+                    p->drawText (tz, "停止");
+
+                    int startX5 = startX4 + fSize2 + mStatusMargin;
+                    QRect sc(startX5, startY, fSize2, mStatusHigh);
+                    p->drawText (sc, "删除");
+                    p->restore();
+                    break;
+                }
+                default: {
+                    break;
+                }
+            }
 
             break;
         }
@@ -104,14 +225,14 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
             QStyleOptionProgressBar cbOp;
             cbOp.maximum |= 100;
             cbOp.minimum = 0;
-            cbOp.progress = 80;
+            cbOp.progress = (int) (100 * item->getScanProgress());
             cbOp.rect = rectCB;
             cbOp.textVisible = true;
-            cbOp.text = "60/100";
+            cbOp.text = QString("%1/%2").arg (item->getFinishedFile()).arg (item->getAllFile());
 
             p->save();
             auto f = p->font();
-            f.setPointSizeF (f.pointSizeF() - 2);
+            f.setPointSizeF (f.pointSizeF() - 3);
             p->setFont (f);
             QApplication::style()->drawControl(QStyle::CE_ProgressBar, &cbOp, p);
             p->restore();

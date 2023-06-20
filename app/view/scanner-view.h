@@ -20,6 +20,7 @@ Q_SIGNALS:
     void taskPause();
     void taskStop();
     void taskDelete();
+    void taskGoOn();
     void taskDetail(const QString& taskID);
     void updateView ();
 
