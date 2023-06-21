@@ -139,7 +139,7 @@ QString getLocalMAC()
                           (unsigned char) buf[ifaceNum].ifr_hwaddr.sa_data[4],
                           (unsigned char) buf[ifaceNum].ifr_hwaddr.sa_data[5]
                 );
-                macs << mac;
+                if (g_strcmp0 ("00-00-00-00-00-00", mac)) macs << mac;
             }
         }
     }
