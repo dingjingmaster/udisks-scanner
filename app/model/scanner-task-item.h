@@ -32,6 +32,7 @@ public:
     [[nodiscard]] QString getName ();
     [[nodiscard]] QStringList getPolicy ();
     [[nodiscard]] QString getScanPath ();
+    [[nodiscard]] QString getScanOutPath ();
     [[nodiscard]] qint64 getStartTime () const;
     [[nodiscard]] QString getStartTimeStr () const;
     [[nodiscard]] Status getStatus ();

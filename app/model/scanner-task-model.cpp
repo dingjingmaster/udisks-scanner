@@ -70,15 +70,6 @@ void ScannerTaskModel::resetModel()
 //    mScanTaskHelper->reset();
 }
 
-void ScannerTaskModel::addItem(ScannerTaskItem* item)
-{
-    if (!item)      return;
-
-
-
-//    insertRows(mData.count() - 1, 1);
-}
-
 void ScannerTaskModel::delItem(const std::shared_ptr<ScannerTaskItem>& item)
 {
     if (!item)      return;
@@ -86,17 +77,6 @@ void ScannerTaskModel::delItem(const std::shared_ptr<ScannerTaskItem>& item)
     qInfo() << "delete task: " << item->getName();
 
     mScanTaskDB->delItemById (item->getID());
-}
-
-void ScannerTaskModel::updateItem(ScannerTaskItem *item)
-{
-    if (!item)      return;
-
-    QModelIndex idx = getIndexByItem (item);
-    if (idx.isValid () && (mCurIndex - 10 < idx.row()) && (mCurIndex + 30 > idx.row())) {
-        QModelIndex idx1 = index (idx.row (), (int)(EnumSize) - 1);
-        Q_EMIT dataChanged (idx, idx1);
-    }
 }
 
 int ScannerTaskModel::rowCount(const QModelIndex &parent) const

@@ -4,18 +4,34 @@
 
 #include "result-model.h"
 
+#include <glib.h>
+
 #include <QFont>
+#include <QDebug>
 #include <QColor>
 #include <QObject>
 #include <QApplication>
 
 #include "model/result-item.h"
+#include "db/scan-result-db.h"
 
 
 ResultModel::ResultModel(QObject *parent)
-    : QAbstractTableModel(parent)
+    : QAbstractTableModel(parent),
+    mScanResultDB(ScanResultDB::getInstance())
 {
+    connect (mScanResultDB, &ScanResultDB::addTasksResult, this, [=] (QList<QString>& ls) {
+        beginInsertRows (QModelIndex(), mScanResultDB->rowCount(), mScanResultDB->rowCount() + ls.count() - 1);
+        endInsertRows();
+    });
 
+    connect (mScanResultDB, &ScanResultDB::delTaskResult, this, [=] (QList<QString>& ls) {
+        for (const auto& it : ls) {
+            auto row = mScanResultDB->getRowByItemID(it);
+            beginRemoveRows (QModelIndex(), row, 1);
+            endRemoveRows();
+        }
+    });
 }
 
 void ResultModel::clearData()
@@ -29,108 +45,12 @@ QModelIndex ResultModel::getIndexByItem(const ResultItem *item, int column)
         return {};
     }
 
-    mDataLocker.lock();
-
-    int rows = rowCount(QModelIndex());
-    for (auto i = 0; i < rows; ++i) {
-        QModelIndex ii = index(i, column);
-        auto it = static_cast <const ResultItem*> (ii.internalPointer());
-        if (it == item) {
-            mDataLocker.unlock();
-            return ii;
-        }
-    }
-
-    mDataLocker.unlock();
-
     return {};
 }
 
 void ResultModel::test()
 {
     beginResetModel();
-    mDataLocker.lock();
-
-    auto item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
-
-    item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
-
-    item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
-
-    item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
-
-    item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
-
-    item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
-
-    item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
-
-    item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
-
-    item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
-
-    item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
-
-    item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
-
-    item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
-
-    item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
-
-    item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
-
-    item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
-
-    item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
-
-    item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
-
-    item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
-
-    item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
-
-    item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
-
-    item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
-
-    item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
-
-    item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
-
-    item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
-
-    item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
-
-    item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
-
-    item = new ResultItem("1", "file name", "/path/name/", 0);
-    mData.append (item);
 
     endResetModel();
 }
@@ -138,44 +58,8 @@ void ResultModel::test()
 void ResultModel::resetModel()
 {
     beginResetModel ();
-    mDataLocker.lock();
-    mData.clear ();
-    mDataLocker.unlock();
+
     endResetModel ();
-}
-
-void ResultModel::addItem(ResultItem *item)
-{
-    if (!item)      return;
-
-    mDataLocker.lock();
-    mData.append(item);
-    mDataLocker.unlock();
-}
-
-void ResultModel::delItem(ResultItem *item)
-{
-    if (!item)      return;
-
-    QModelIndex idx = getIndexByItem (item);
-
-    mDataLocker.lock();
-    if (idx.isValid()) {
-        removeRow (idx.row ());
-    }
-    if (mData.contains(item)) mData.removeOne (item);
-    mDataLocker.unlock();
-}
-
-void ResultModel::updateItem(ResultItem *item)
-{
-    if (!item)      return;
-
-    QModelIndex idx = getIndexByItem (item);
-    if (idx.isValid () && (mCurIndex - 10 < idx.row()) && (mCurIndex + 30 > idx.row())) {
-        QModelIndex idx1 = index (idx.row (), (int)(EnumSize) - 1);
-        Q_EMIT dataChanged (idx, idx1);
-    }
 }
 
 void ResultModel::onScrollbarMoved(float ratio)
@@ -185,7 +69,9 @@ void ResultModel::onScrollbarMoved(float ratio)
 
 int ResultModel::rowCount(const QModelIndex &parent) const
 {
-    return mData.count();
+    g_return_val_if_fail(mScanResultDB, 0);
+
+    return mScanResultDB->rowCount();
 }
 
 int ResultModel::columnCount(const QModelIndex &parent) const
@@ -197,8 +83,9 @@ QVariant ResultModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())       return {};
 
-    auto item = static_cast<ResultItem*>(index.internalPointer());
-    if (!item)      return {};
+    auto idb = static_cast<ScanResultDB*>(index.internalPointer());
+    if (!idb)      return {};
+    auto item = idb->getItemByIndex (index.row());
 
     if (Qt::DisplayRole == role) {
         switch (index.column()) {
@@ -252,10 +139,10 @@ QVariant ResultModel::headerData(int section, Qt::Orientation orentation, int ro
 QModelIndex ResultModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!parent.isValid()) {
-        if (row < 0 || row > mData.count() - 1) {
+        if (row < 0 || row > mScanResultDB->rowCount() - 1) {
             return {};
         }
-        return createIndex(row, column, mData.at(row));
+        return createIndex(row, column, mScanResultDB);
     }
 
     return {};
@@ -272,23 +159,23 @@ Qt::ItemFlags ResultModel::flags(const QModelIndex &index) const
 
 bool ResultModel::insertRows(int row, int count, const QModelIndex &parent)
 {
-//    beginInsertRows(parent, row, row + count - 1);
-//    endInsertRows();
-
-    return QAbstractItemModel::removeRows (row, count, parent);
+    QAbstractTableModel::insertRows(row, count, parent);
 }
 
 bool ResultModel::removeRows(int row, int count, const QModelIndex &parent)
 {
-//    beginRemoveRows(parent, row, row + count - 1);
-//    endRemoveRows();
-
     return QAbstractItemModel::removeRows (row, count, parent);
 }
 
 ResultModel::~ResultModel()
 {
-    mDataLocker.lock();
-    mData.clear();
-    mDataLocker.unlock();
+}
+
+void ResultModel::delItem(const std::shared_ptr<ResultItem> &item)
+{
+    if (!item)      return;
+
+//    qInfo() << "delete task: " << item->getFileName();
+
+//    mScanResultDB->delItemById (item->getID());
 }

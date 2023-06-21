@@ -6,9 +6,11 @@
 #define UDISKS_SCANNER_RESULT_MODEL_H
 #include <QAbstractTableModel>
 #include <QMutex>
+#include <memory>
 
 
 class ResultItem;
+class ScanResultDB;
 class ResultModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -29,9 +31,7 @@ private:
     Q_SIGNALS:
 
 public Q_SLOTS:
-    void addItem (ResultItem* item);
-    void delItem (ResultItem* item);
-    void updateItem (ResultItem* item);
+    void delItem (const std::shared_ptr<ResultItem>& item);
     void onScrollbarMoved (float ratio);
 
 public:
@@ -55,11 +55,7 @@ private:
 
     int                                                 mCurIndex = 0;
 
-//    ScanTaskHelper*                                     mScanTaskHelper;
-
-    // ScannerxxItem
-    QList<ResultItem*>                                  mData;
-    QMutex                                              mDataLocker;
+    ScanResultDB*                                       mScanResultDB = nullptr;
 };
 
 #endif //UDISKS_SCANNER_RESULT_MODEL_H

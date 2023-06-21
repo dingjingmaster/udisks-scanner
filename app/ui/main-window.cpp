@@ -76,11 +76,11 @@ MainWindow::MainWindow (QWidget *parent)
 
     connect (mWindow1, qOverload<const QString&>(&MainWidget1::taskDetail), this, [=] (const QString& id) {
         mWindow1->hide();
-        mWindow2->show();
+        mWindow2->showResult(id);
     });
 
     connect (mWindow2, qOverload<>(&MainWidget2::showTaskList), this, [=] () {
-        mWindow2->hide();
+        mWindow2->hideResult();
         mWindow1->show();
     });
 }

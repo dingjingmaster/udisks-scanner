@@ -77,9 +77,9 @@ ScanTaskDBPrivate::ScanTaskDBPrivate(QString dbPath, ScanTaskDB *p, QObject* par
     mTimes(0)
 {
     connect (mTimer, &QTimer::timeout, this, [=] () -> void {
+        if (g_cancellable_is_cancelled (mCancel)) return;
         if (QFileInfo::exists(mDBPath) && mDBWatcher->files().isEmpty()) {
             mDBWatcher->addPath (mDBPath);
-            mTimer->setInterval (3 * 1000);
             onDBChanged();
             return;
         }
@@ -96,7 +96,7 @@ ScanTaskDBPrivate::ScanTaskDBPrivate(QString dbPath, ScanTaskDB *p, QObject* par
         setDBFileIsChanged (true);
     });
 
-    mTimer->setInterval (1 * 1000);
+    mTimer->setInterval (3 * 1000);
     mTimer->start();
 }
 
@@ -118,11 +118,9 @@ ScanTaskDBPrivate::~ScanTaskDBPrivate()
 
 void ScanTaskDBPrivate::onDBChanged()
 {
-    if (isRunning()) return;
+    if (isRunning() || g_cancellable_is_cancelled (mCancel)) return;
 
     Q_Q(ScanTaskDB);
-
-    qDebug() << "db changed!";
 
     const char* sql = "SELECT task_id, task_name, scan_task_filter_name, "
                       "scan_task_dir, scan_task_dir_filterout, "
@@ -147,7 +145,8 @@ void ScanTaskDBPrivate::onDBChanged()
                 while (SQLITE_DONE != sqlite3_step (stmt)) {
                     if (g_cancellable_is_cancelled (mCancel)) {
                         qDebug() << "cancelled";
-                        break;
+                        QApplication::processEvents();
+                        return;
                     }
 
                     QApplication::processEvents();

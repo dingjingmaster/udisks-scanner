@@ -7,10 +7,6 @@
 #include <memory>
 #include <QObject>
 
-
-#define DB_PATH     "/tmp/scan_task.db"
-
-
 class ScannerTaskItem;
 class ScanTaskDBPrivate;
 class ScanTaskDB : public QObject

@@ -35,9 +35,7 @@ Q_SIGNALS:
     void updateView();
 
 public Q_SLOTS:
-    void addItem (ScannerTaskItem* item);
     void delItem (const std::shared_ptr<ScannerTaskItem>& item);
-    void updateItem (ScannerTaskItem* item);
     void onScrollbarMoved (float ratio);
 
 public:

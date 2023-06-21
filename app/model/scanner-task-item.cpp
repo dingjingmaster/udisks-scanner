@@ -192,3 +192,12 @@ void ScannerTaskItem::setIsChecked(bool c)
     mIsChecked = c;
 }
 
+QString ScannerTaskItem::getScanOutPath()
+{
+    if (mScanOutPath.isEmpty()) {
+        return "";
+    }
+
+    return mScanOutPath.join (";");
+}
+

@@ -9,11 +9,12 @@
 #include <QVBoxLayout>
 #include <QApplication>
 
-#include "task-trace.h"
 #include "push-button.h"
 #include "utils/tools.h"
+#include "db/scan-task-db.h"
 #include "view/result-view.h"
 #include "model/result-model.h"
+#include "model/scanner-task-item.h"
 
 
 MainWidget2::MainWidget2(QWidget *parent)
@@ -58,15 +59,15 @@ MainWidget2::MainWidget2(QWidget *parent)
     l210->addStretch ();
 //    l210->addWidget (lb12);
 
-    auto lb21 = new QLabel("单位名称: 中国信息安全测评中心");
-    lb21->setFont (font2);
-    auto lb22 = new QLabel("任务名称：电信行业扫描任务");
-    lb22->setFont (font2);
-    auto lb23 = new QLabel("应用策略：策略名称1;策略名称2;策略名称3");
-    lb23->setFont (font2);
-    l211->addWidget (lb21);
-    l211->addWidget (lb22);
-    l211->addWidget (lb23);
+    mDW = new QLabel("单位名称: 中国信息安全测评中心");
+    mDW->setFont (font2);
+    mTN = new QLabel("任务名称：电信行业扫描任务");
+    mTN->setFont (font2);
+    mCL = new QLabel("应用策略：策略名称1;策略名称2;策略名称3");
+    mCL->setFont (font2);
+    l211->addWidget (mDW);
+    l211->addWidget (mTN);
+    l211->addWidget (mCL);
 
     auto lbb1 = new QLabel("检查结果");
     lbb1->setFont (font1);
@@ -81,15 +82,15 @@ MainWidget2::MainWidget2(QWidget *parent)
     l212->addWidget (lbb22);
     l212->addWidget (lbb23);
 
-    auto lbb24 = new QLabel("检查路径: /data/code");
-    lbb24->setFont (font2);
-    auto lbb25 = new QLabel("例外路径：/home/test");
-    lbb25->setFont (font2);
-    auto lbb26 = new QLabel("开始时间：2023-06-06 11:11:11");
-    lbb26->setFont (font2);
-    l213->addWidget (lbb24);
-    l213->addWidget (lbb25);
-    l213->addWidget (lbb26);
+    mSP = new QLabel("检查路径: /data/code");
+    mSP->setFont (font2);
+    mSNP = new QLabel("例外路径：/home/test");
+    mSNP->setFont (font2);
+    mST = new QLabel("开始时间：2023-06-06 11:11:11");
+    mST->setFont (font2);
+    l213->addWidget (mSP);
+    l213->addWidget (mSNP);
+    l213->addWidget (mST);
 
     mView = new ResultView;
     mModel = new ResultModel;
@@ -149,4 +150,43 @@ void MainWidget2::resizeEvent(QResizeEvent *event)
     mView->horizontalHeader()->resizeSection (2, (int) (w * 0.6));
 
     QWidget::resizeEvent (event);
+}
+
+void MainWidget2::showResult(const QString &taskID)
+{
+    mTaskID = taskID;
+#define DW  "单位名称："
+#define TN  "任务名称："
+#define CL  "应用策略："
+#define SP  "检查路径："
+#define SNP "例外路径："
+#define ST  "开始时间："
+    ScanTaskDB* sc = ScanTaskDB::getInstance();
+    auto item = sc->getItemByIndex (sc->getRowByItemID (taskID));
+    if (mTaskID.isNull() || mTaskID.isEmpty() || !item) {
+        mDW->setText (QString("%1%2").arg (DW, "中国信息安全测评中心"));
+        mTN->setText (TN);
+        mCL->setText (CL);
+        mSP->setText (SP);
+        mSNP->setText (SNP);
+        mST->setText (ST);
+        show();
+        return;
+    }
+
+    mDW->setText (QString("%1%2").arg (DW, "中国信息安全测评中心"));
+    mTN->setText (QString("%1%2").arg (TN, item->getName()));
+    mCL->setText (QString("%1%2").arg (CL, item->getPolicy().join (";")));
+    mSP->setText (QString("%1%2").arg (SP, item->getScanPath()));
+    mSNP->setText (QString("%1%2").arg (SNP, item->getScanOutPath()));
+    mST->setText (QString("%1%2").arg (ST, item->getStartTimeStr()));
+
+    show ();
+}
+
+void MainWidget2::hideResult()
+{
+    mTaskID = "";
+
+    hide();
 }
