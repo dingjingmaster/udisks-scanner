@@ -11,6 +11,7 @@
 
 #include "task-trace.h"
 #include "push-button.h"
+#include "utils/tools.h"
 #include "view/result-view.h"
 #include "model/result-model.h"
 
@@ -57,7 +58,7 @@ MainWidget2::MainWidget2(QWidget *parent)
     l210->addStretch ();
 //    l210->addWidget (lb12);
 
-    auto lb21 = new QLabel("单位名称: 中国信息安全测评中心AAA");
+    auto lb21 = new QLabel("单位名称: 中国信息安全测评中心");
     lb21->setFont (font2);
     auto lb22 = new QLabel("任务名称：电信行业扫描任务");
     lb22->setFont (font2);
@@ -70,11 +71,11 @@ MainWidget2::MainWidget2(QWidget *parent)
     auto lbb1 = new QLabel("检查结果");
     lbb1->setFont (font1);
 
-    auto lbb21 = new QLabel("主机名: ZRD");
+    auto lbb21 = new QLabel(QString("主机名: %1").arg (getLocalPCName()));
     lbb21->setFont (font2);
-    auto lbb22 = new QLabel("IP地址：192.168.30.23");
+    auto lbb22 = new QLabel(QString("IP地址：%1").arg (getLocalIP()));
     lbb22->setFont (font2);
-    auto lbb23 = new QLabel("MAC地址：08-5F-A3-C5-F5-F1");
+    auto lbb23 = new QLabel(QString("MAC地址：%1").arg (getLocalMAC()));
     lbb23->setFont (font2);
     l212->addWidget (lbb21);
     l212->addWidget (lbb22);

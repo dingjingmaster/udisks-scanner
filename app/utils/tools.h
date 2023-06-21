@@ -6,6 +6,7 @@
 #define UDISKS_SCANNER_TOOLS_H
 #include <cstdio>
 #include <QMutex>
+#include <QString>
 
 #define TASK_DB_LOCKER          "/tmp/.est.db.lock"
 
@@ -30,5 +31,8 @@ private:
     QMutex      mLocker;
 };
 
+QString getLocalIP ();
+QString getLocalMAC ();
+QString getLocalPCName ();
 
 #endif //UDISKS_SCANNER_TOOLS_H
