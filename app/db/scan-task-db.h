@@ -25,6 +25,10 @@ public:
     int getRowByItem(std::shared_ptr<ScannerTaskItem> item);
     int getRowByItemID(const QString& id);
     void delItemById(const QString& id);
+    void setSelectedAll(bool c);
+    void setSelectedByRow(int row, bool c);
+    bool isCheckAllItems();
+    bool hasChecked();
     // end - for model
 
     // start - for test

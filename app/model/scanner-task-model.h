@@ -24,10 +24,15 @@ public:
 
     void test ();
 
+    bool hasChecked();
+    void setSelectedAll (bool c);
+    void setSelectedByRow (int row, bool c);
+
 private:
     void resetModel ();
 
 Q_SIGNALS:
+    void updateView();
 
 public Q_SLOTS:
     void addItem (ScannerTaskItem* item);

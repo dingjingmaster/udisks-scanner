@@ -26,6 +26,7 @@ public:
     void setStatus (int status);
     void setStatus (Status status);
     void setScanProgress(float scanProgress);
+    void setIsChecked(bool c);
 
     [[nodiscard]] QString getID ();
     [[nodiscard]] QString getName ();

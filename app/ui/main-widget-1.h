@@ -21,6 +21,7 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
 Q_SIGNALS:
+    void checkedItem(bool c);
     void taskDetail(const QString& taskID);
 
 private:

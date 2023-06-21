@@ -121,6 +121,7 @@ QVariant ScannerTaskModel::data(const QModelIndex &index, int role) const
 
     if (Qt::DisplayRole == role) {
         switch (index.column()) {
+            case 0:             return item->getIsChecked();
             case TaskIndex:     return index.row() + 1;
             case TaskName:      return item->getName();
             case TaskPolicy:    return item->getPolicy().join (";");
@@ -393,4 +394,27 @@ void ScannerTaskModel::test()
     mDataLocker.unlock();
 #endif
     endResetModel();
+}
+
+void ScannerTaskModel::setSelectedAll(bool c)
+{
+    g_return_if_fail(mScanTaskDB);
+
+    mScanTaskDB->setSelectedAll (c);
+
+    Q_EMIT updateView();
+}
+
+void ScannerTaskModel::setSelectedByRow(int row, bool c)
+{
+    g_return_if_fail(mScanTaskDB);
+
+    mScanTaskDB->setSelectedByRow (row, c);
+
+    Q_EMIT updateView();
+}
+
+bool ScannerTaskModel::hasChecked()
+{
+    return mScanTaskDB->hasChecked();
 }

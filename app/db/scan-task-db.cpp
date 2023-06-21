@@ -382,7 +382,7 @@ void ScanTaskDB::testInsertItem()
     ");"                                                                    \
     ""
 
-    qInfo() << DB_TABLE;
+//    qInfo() << DB_TABLE;
 
     QProcess::execute("rm", QStringList() << "-f" << d->mDBPath);
     if (!QFileInfo::exists(DB_PATH)) {
@@ -438,6 +438,55 @@ int ScanTaskDB::getRowByItemID(const QString &id)
     d->mLocker.unlock();
 
     return row;
+}
+
+void ScanTaskDB::setSelectedAll(bool c)
+{
+    Q_D(ScanTaskDB);
+
+    d->mLocker.lock();
+    for (auto& s : d->mData) {
+        s->setIsChecked (c);
+    }
+    d->mLocker.unlock();
+}
+
+void ScanTaskDB::setSelectedByRow(int row, bool c)
+{
+    Q_D(ScanTaskDB);
+
+    auto s = getItemByIndex (row);
+    if (s) {
+        s->setIsChecked (c);
+    }
+}
+
+bool ScanTaskDB::isCheckAllItems()
+{
+    Q_D(ScanTaskDB);
+
+    auto c = rowCount();
+    for (int i = 0; i < c; ++i) {
+        auto s = getItemByIndex (i);
+        if (!s->getIsChecked()) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool ScanTaskDB::hasChecked()
+{
+    auto c = rowCount();
+    for (int i = 0; i < c; ++i) {
+        auto s = getItemByIndex (i);
+        if (s->getIsChecked()) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 #include "scan-task-db.moc"

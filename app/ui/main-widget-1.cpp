@@ -59,7 +59,8 @@ MainWidget1::MainWidget1(QWidget *parent)
     mView->setItemDelegate (new ScannerTaskDelegate(this));
 
     mView->setModel (mModel);
-    mView->setHorizontalHeader (new HeaderView(Qt::Horizontal));
+    auto header = new HeaderView(Qt::Horizontal);
+    mView->setHorizontalHeader (header);
 
     auto lb = new QLabel("版权所有、版本号、咨询电话以及官网信息");
     l3->addStretch ();
@@ -100,6 +101,61 @@ MainWidget1::MainWidget1(QWidget *parent)
     mView->horizontalHeader()->setSectionsClickable (false);
 
     connect (mView, qOverload<const QString&>(&ScannerView::taskDetail), this, qOverload<const QString&>(&MainWidget1::taskDetail));
+
+    connect (header, &HeaderView::checkBoxClicked, this, [=] (bool c) -> void {
+        if (!mModel)return;
+        mModel->setSelectedAll (c);
+        Q_EMIT checkedItem (mModel->hasChecked());
+    });
+
+    connect (mModel, &ScannerTaskModel::updateView, this, [=] () -> void {
+        auto s = mView->verticalScrollBar();
+        auto scrollBarRatio = float(s->value()) / (s->maximum() - s->minimum());
+        auto curItemIndex = scrollBarRatio * mModel->rowCount(QModelIndex());
+        auto startIndex = ((curItemIndex - 30) >= 0) ? (curItemIndex - 30) : 0;
+        auto stopIndex = ((curItemIndex + 30) < mModel->rowCount(QModelIndex())) ? (curItemIndex + 30) : mModel->rowCount(QModelIndex());
+
+        // 开始更新
+        for (auto i = startIndex; i <= stopIndex; ++i) {
+            mView->update(mModel->index(i, 0));
+            mView->update(mModel->index(i, 1));
+            mView->update(mModel->index(i, 2));
+            mView->update(mModel->index(i, 3));
+            mView->update(mModel->index(i, 4));
+            mView->update(mModel->index(i, 5));
+            mView->update(mModel->index(i, 6));
+            mView->update(mModel->index(i, 7));
+            mView->update(mModel->index(i, 8));
+        }
+    });
+
+    connect (mView, &QAbstractItemView::clicked, this, [=] (const QModelIndex &index) {
+        if (!index.isValid())   return;
+        if (index.column() == 0) {
+            auto cc = static_cast<ScanTaskDB*>(index.internalPointer());
+            if (!cc) {
+                return;
+            }
+            auto item = cc->getItemByIndex (index.row());
+            item->setIsChecked(!item->getIsChecked());
+            bool checkAll = cc->isCheckAllItems();
+            header->setChecked(checkAll);
+            Q_EMIT checkedItem(checkAll || cc->hasChecked ());
+            Q_EMIT mModel->updateView();
+        }
+    });
+
+    connect (this, &MainWidget1::checkedItem, this, [=] (bool b) -> void {
+        if (b) {
+            btn21->setEnable (true);
+            btn22->setEnable (true);
+        }
+        else {
+            btn21->setEnable (false);
+            btn22->setEnable (false);
+        }
+    });
+
 
 #if 1
     // test

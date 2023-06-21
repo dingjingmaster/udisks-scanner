@@ -187,3 +187,8 @@ int ScannerTaskItem::getAllFile()
     return (int) mAllFile;
 }
 
+void ScannerTaskItem::setIsChecked(bool c)
+{
+    mIsChecked = c;
+}
+
