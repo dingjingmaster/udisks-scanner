@@ -1,5 +1,6 @@
 .idea/
 cmake-*
+package/
 
 # C++ objects and libs
 *.slo
