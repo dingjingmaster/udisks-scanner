@@ -24,6 +24,7 @@ add_definitions(
         -D G_LOG_DOMAIN=\\"${PROJECT_NAME}\\"
         -D INSTALL_PATH=\\"/usr/local/ultrasec/\\"
         -D DB_PATH=\\"/tmp/scan_task.db\\"
+        -D IPC_PF_SOCKET=\\"/tmp/udisks.sock\\"
         -D PACKAGE_VERSION=\\"${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}\\")
 
 find_package (PkgConfig)

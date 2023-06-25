@@ -2,6 +2,7 @@ project(app LANGUAGES CXX)
 
 include(ui/ui.cmake)
 include(db/db.cmake)
+include(ipc/ipc.cmake)
 include(view/view.cmake)
 include(model/model.cmake)
 include(utils/utils.cmake)
@@ -13,7 +14,7 @@ file(GLOB UDISKS_SCANNER_SRC
 
 add_executable(udisks-scanner main.cpp res.qrc
         ${SINGLEAPP_GUI_SRC} ${COMMON_SRC} ${UI_SRC} ${UDISKS_SCANNER_SRC}
-        ${VIEW_SRC} ${MODEL_SRC} ${DB_SRC} ${UTILS_SRC}
+        ${VIEW_SRC} ${MODEL_SRC} ${DB_SRC} ${UTILS_SRC} ${IPC_SRC}
         )
 target_link_libraries(udisks-scanner -lX11 -lsqlite3
         Qt5::Widgets Qt5::Network Qt5::X11Extras

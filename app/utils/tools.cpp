@@ -24,7 +24,7 @@ TaskDBLock::TaskDBLock()
 
 void TaskDBLock::lock()
 {
-    while (!lock1());
+    while (!lock1()) g_usleep (600);
 }
 
 void TaskDBLock::unlock()
