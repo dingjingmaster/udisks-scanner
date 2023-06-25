@@ -398,3 +398,12 @@ bool ScannerTaskModel::hasChecked()
 {
     return mScanTaskDB->hasChecked();
 }
+
+QModelIndex ScannerTaskModel::getIndexByRow(int row)
+{
+    if (row < 0 || row > mScanTaskDB->rowCount() - 1) {
+        return {};
+    }
+
+    return createIndex(row, 0, mScanTaskDB);
+}

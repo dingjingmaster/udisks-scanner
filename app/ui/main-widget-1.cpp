@@ -59,6 +59,8 @@ MainWidget1::MainWidget1(QWidget *parent)
     mView->setItemDelegate (new ScannerTaskDelegate(this));
 
     mView->setModel (mModel);
+    mComboBox->setModel (mModel);
+    mComboBox->setModelColumn (2);
     auto header = new HeaderView(Qt::Horizontal);
     mView->setHorizontalHeader (header);
 
@@ -100,6 +102,20 @@ MainWidget1::MainWidget1(QWidget *parent)
 
     mView->horizontalHeader()->setSectionsClickable (false);
 
+    connect (mModel, &QAbstractTableModel::rowsInserted, this, [=] (const QModelIndex& p, int first, int last) -> void {
+        if (!mModel)return;
+        if (mModel->rowCount (QModelIndex()) > 0) {
+            mComboBox->setCurrentIndex (0);
+        }
+    });
+
+    connect (mComboBox, qOverload<int>(&QComboBox::currentIndexChanged), this, [=] (int index) -> void {
+        if (!mModel)return;
+        auto idx = mModel->getIndexByRow (index);
+        mView->scrollTo (idx);
+        mView->setCurrentIndex (idx);
+    });
+
     connect (mView, qOverload<const QString&>(&ScannerView::taskDetail), this, qOverload<const QString&>(&MainWidget1::taskDetail));
 
     connect (header, &HeaderView::checkBoxClicked, this, [=] (bool c) -> void {
@@ -109,6 +125,7 @@ MainWidget1::MainWidget1(QWidget *parent)
     });
 
     connect (mModel, &ScannerTaskModel::updateView, this, [=] () -> void {
+        if (!mModel || mView)return;
         auto s = mView->verticalScrollBar();
         auto scrollBarRatio = float(s->value()) / (s->maximum() - s->minimum());
         auto curItemIndex = scrollBarRatio * mModel->rowCount(QModelIndex());

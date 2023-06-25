@@ -21,6 +21,7 @@ public:
 
     void clearData();
     QModelIndex getIndexByItem (const ScannerTaskItem* it, int column=0);
+    QModelIndex getIndexByRow (int row);
 
     void test ();
 
