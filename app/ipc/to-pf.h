@@ -23,6 +23,7 @@ public:
     void taskPause(const QString& taskID);
     void taskResume(const QString& taskID);
     void taskDelete(const QString& taskID);
+    void taskDelete(const QStringList& taskID);
 
 private:
     void init(QLocalSocket& socket);

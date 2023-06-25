@@ -407,3 +407,12 @@ QModelIndex ScannerTaskModel::getIndexByRow(int row)
 
     return createIndex(row, 0, mScanTaskDB);
 }
+
+QList<std::shared_ptr<ScannerTaskItem>> ScannerTaskModel::getSelectedItems()
+{
+    if (!mScanTaskDB) {
+        return {};
+    }
+
+    return mScanTaskDB->getSelectedItems();
+}

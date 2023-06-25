@@ -9,13 +9,17 @@
 #include <QScrollBar>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QFileDialog>
+#include <QStandardPaths>
 #include <QAbstractItemView>
 
+#include "ipc/to-pf.h"
 #include "push-button.h"
 #include "view/header-view.h"
 #include "view/scanner-view.h"
-#include "model/scanner-task-model.h"
+#include "task-start-dialog.h"
 #include "scanner-task-delegate.h"
+#include "model/scanner-task-model.h"
 
 
 MainWidget1::MainWidget1(QWidget *parent)
@@ -102,6 +106,43 @@ MainWidget1::MainWidget1(QWidget *parent)
 
     mView->horizontalHeader()->setSectionsClickable (false);
 
+    // 导入
+    connect (btn1, &PushButton::clicked, this, [=] () -> void {
+        QFileDialog dlg;
+        dlg.setAcceptMode (QFileDialog::AcceptOpen);
+        dlg.setDirectory (QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
+        dlg.setFileMode (QFileDialog::ExistingFile);
+        if (QDialog::Accepted == dlg.exec()) {
+            auto path = dlg.selectedFiles();
+            qDebug() << "open path: " << path;
+            if (path.isEmpty()) return;
+            auto l = path.first();
+            ToPF::getInstance()->loadTask (l);
+        }
+        else {
+            qDebug() << "load task cancel!";
+        }
+    });
+
+    // 删除
+    connect (btn21, &PushButton::clicked, this, [=] () -> void {
+        auto toDels = mModel->getSelectedItems();
+
+        // 运行中的任务不可删除
+        QStringList ids;
+        for (auto& l : toDels) {
+            if (ScannerTaskItem::Scanning != l->getStatus()) {
+                ids << l->getID();
+            }
+        }
+
+        if (ids.isEmpty()) {
+            return;
+        }
+
+        ToPF::getInstance()->taskDelete(ids);
+    });
+
     connect (mModel, &QAbstractTableModel::rowsInserted, this, [=] (const QModelIndex& p, int first, int last) -> void {
         if (!mModel)return;
         if (mModel->rowCount (QModelIndex()) > 0) {
@@ -125,7 +166,7 @@ MainWidget1::MainWidget1(QWidget *parent)
     });
 
     connect (mModel, &ScannerTaskModel::updateView, this, [=] () -> void {
-        if (!mModel || mView)return;
+        if (!mModel || !mView)return;
         auto s = mView->verticalScrollBar();
         auto scrollBarRatio = float(s->value()) / (s->maximum() - s->minimum());
         auto curItemIndex = scrollBarRatio * mModel->rowCount(QModelIndex());

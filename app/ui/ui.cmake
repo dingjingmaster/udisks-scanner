@@ -28,4 +28,7 @@ file(GLOB UI_SRC
 
         ${CMAKE_SOURCE_DIR}/app/ui/task-trace.h
         ${CMAKE_SOURCE_DIR}/app/ui/task-trace.cpp
+
+        ${CMAKE_SOURCE_DIR}/app/ui/task-start-dialog.h
+        ${CMAKE_SOURCE_DIR}/app/ui/task-start-dialog.cpp
         )

@@ -364,7 +364,7 @@ void signal_handler (int sig, siginfo_t* siginfo, void* context)
     ERROR ("\n\n%s\n\n", buf);
 
     free(btSymbols);
-    //signal(sig, SIG_DFL);
-    //raise(sig);
+    signal(sig, SIG_DFL);
+    raise(sig);
 }
 

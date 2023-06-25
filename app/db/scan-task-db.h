@@ -18,13 +18,15 @@ public:
     // start - for model
     int rowCount();
     std::shared_ptr<ScannerTaskItem> getItemByIndex(int row);
-    int getRowByItem(std::shared_ptr<ScannerTaskItem> item);
-    int getRowByItemID(const QString& id);
     void delItemById(const QString& id);
     void setSelectedAll(bool c);
     void setSelectedByRow(int row, bool c);
     bool isCheckAllItems();
     bool hasChecked();
+
+    int getRowByItemID(const QString& id);
+    int getRowByItem(std::shared_ptr<ScannerTaskItem> item);
+    QList<std::shared_ptr<ScannerTaskItem>> getSelectedItems ();
     // end - for model
 
     // start - for test

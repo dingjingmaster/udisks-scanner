@@ -22,6 +22,7 @@ public:
     void clearData();
     QModelIndex getIndexByItem (const ScannerTaskItem* it, int column=0);
     QModelIndex getIndexByRow (int row);
+    QList<std::shared_ptr<ScannerTaskItem>> getSelectedItems ();
 
     void test ();
 

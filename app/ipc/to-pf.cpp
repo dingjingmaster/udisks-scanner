@@ -8,11 +8,11 @@
 
 #include <QDebug>
 
-typedef struct _Message
+typedef struct Message
 {
-    unsigned long messageType;        // 即消息索引号
-    unsigned long messageLength;             // 消息头后面消息体长度
-    char* data;
+    unsigned long messageType;              // 即消息索引号
+    unsigned long messageLength;            // 消息头后面消息体长度
+    char data[0];
 } Message;
 
 
@@ -276,6 +276,39 @@ void ToPF::taskDelete(const QString &taskID)
     QString buf;
 
     buf = QString("%1:%2").arg (taskID).arg (TO_DEL);
+
+    int len = buf.toUtf8().size();
+
+    unsigned long lenA = sizeof (Message) + len + 1;
+    g_autofree void* msg = (void*) malloc (lenA);
+    if (nullptr == msg) {
+        qCritical() << "malloc return null!";
+        return;
+    }
+    memset (msg, 0, lenA);
+    auto* msgBuf = (Message*) msg;
+
+    msgBuf->messageType = TASK_OP;
+    msgBuf->messageLength = len;
+    memcpy (msgBuf->data, buf.toUtf8().constData(), len);
+
+    writeToPF ((const char*) msg, (qint64) lenA);
+}
+
+void ToPF::taskDelete(const QStringList &taskID)
+{
+    g_return_if_fail(!taskID.isEmpty());
+
+    QString buf;
+
+    for (auto t : taskID) {
+        if (buf.isEmpty()) {
+            buf = QString("%1:%2").arg (t).arg (TO_DEL);
+        }
+        else {
+            buf += QString("|%1:%2").arg (t).arg (TO_DEL);
+        }
+    }
 
     int len = buf.toUtf8().size();
 

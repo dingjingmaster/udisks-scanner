@@ -488,4 +488,21 @@ bool ScanTaskDB::hasChecked()
     return false;
 }
 
+QList<std::shared_ptr<ScannerTaskItem>> ScanTaskDB::getSelectedItems()
+{
+    Q_D(ScanTaskDB);
+
+    QList<std::shared_ptr<ScannerTaskItem>> ls;
+
+    d->mLocker.lock();
+    for (auto t : d->mData) {
+        if (t->getIsChecked()) {
+            ls << t;
+        }
+    }
+    d->mLocker.unlock();
+
+    return ls;
+}
+
 #include "scan-task-db.moc"
