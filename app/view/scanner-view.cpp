@@ -165,36 +165,36 @@ void ScannerView::mouseReleaseEvent(QMouseEvent *event)
         switch (item->getStatus()) {
             case ScannerTaskItem::NoBegin: {
                 if (qd.contains (event->pos())) {
-                    Q_EMIT taskStart();
+                    Q_EMIT taskStart(item->getID());
                 } else if (sc.contains (event->pos())) {
-                    Q_EMIT taskDelete();
+                    Q_EMIT taskDelete(item->getID());
                 }
                 break;
             }
             case ScannerTaskItem::Scanning: {
                 if (zt.contains (event->pos())) {
-                    Q_EMIT taskPause();
+                    Q_EMIT taskPause(item->getID());
                 } else if (tz.contains (event->pos())) {
-                    Q_EMIT taskStop();
+                    Q_EMIT taskStop(item->getID());
                 }
                 break;
             }
             case ScannerTaskItem::Stop:
             case ScannerTaskItem::Finish: {
                 if (qd.contains (event->pos())) {
-                    Q_EMIT taskStart();
+                    Q_EMIT taskStart(item->getID());
                 } else if (sc.contains (event->pos())) {
-                    Q_EMIT taskDelete();
+                    Q_EMIT taskDelete(item->getID());
                 }
                 break;
             }
             case ScannerTaskItem::Suspended: {
                 if (zt.contains (event->pos())) {
-                    Q_EMIT taskGoOn();
+                    Q_EMIT taskResume(item->getID());
                 } else if (tz.contains (event->pos())) {
-                    Q_EMIT taskStop();
+                    Q_EMIT taskStop(item->getID());
                 } else if (sc.contains (event->pos())) {
-                    Q_EMIT taskDelete();
+                    Q_EMIT taskDelete(item->getID());
                 }
                 break;
             }

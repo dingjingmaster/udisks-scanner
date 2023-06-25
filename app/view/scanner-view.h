@@ -16,11 +16,11 @@ protected:
     void mouseReleaseEvent (QMouseEvent* event) override;
 
 Q_SIGNALS:
-    void taskStart();
-    void taskPause();
-    void taskStop();
-    void taskDelete();
-    void taskGoOn();
+    void taskStart(const QString& taskID);
+    void taskPause(const QString& taskID);
+    void taskStop(const QString& taskID);
+    void taskDelete(const QString& taskID);
+    void taskResume(const QString& taskID);
     void taskDetail(const QString& taskID);
     void updateView ();
 

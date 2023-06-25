@@ -10,11 +10,13 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QFileDialog>
+#include <QPushButton>
 #include <QStandardPaths>
 #include <QAbstractItemView>
 
 #include "ipc/to-pf.h"
 #include "push-button.h"
+#include "message-box.h"
 #include "view/header-view.h"
 #include "view/scanner-view.h"
 #include "task-start-dialog.h"
@@ -142,6 +144,55 @@ MainWidget1::MainWidget1(QWidget *parent)
 
         ToPF::getInstance()->taskDelete(ids);
     });
+
+    // 导出
+    connect (btn22, &PushButton::clicked, this, [=]() -> void {
+        //
+    });
+
+    // 单任务操作 - start
+    connect (mView, &ScannerView::taskStart, this, [=] (const QString& id) -> void {
+        qDebug() << "start: " << id;
+
+    });
+    connect (mView, &ScannerView::taskPause, this, [=] (const QString& id) -> void {
+        qDebug() << "pause: " << id;
+        MessageBox mb ("提示", "您确定是否暂停任务操作？", mView);
+        auto b = mb.addButton ("确定");
+        connect (b, &QPushButton::clicked, this, [&](bool) { ToPF::getInstance ()->taskPause (id); mb.accept(); });
+        b = mb.addButton ("取消");
+        connect (b, &QPushButton::clicked, this, [&](bool) { mb.reject(); });
+        mb.exec();
+    });
+
+    connect (mView, &ScannerView::taskResume, this, [=] (const QString& id) -> void {
+        qDebug() << "resume: " << id;
+        MessageBox mb ("提示", "您确定是否再启动任务操作？", mView);
+        auto b = mb.addButton ("确定");
+        connect (b, &QPushButton::clicked, this, [&](bool) { ToPF::getInstance ()->taskResume (id); mb.accept(); });
+        b = mb.addButton ("取消");
+        connect (b, &QPushButton::clicked, this, [&](bool) { mb.reject(); });
+        mb.exec();
+    });
+    connect (mView, &ScannerView::taskStop, this, [=] (const QString& id) -> void {
+        qDebug() << "stop: " << id;
+        MessageBox mb ("提示", "您确定是否停止任务操作？", mView);
+        auto b = mb.addButton ("确定");
+        connect (b, &QPushButton::clicked, this, [&](bool) { ToPF::getInstance ()->taskStop(id); mb.accept(); });
+        b = mb.addButton ("取消");
+        connect (b, &QPushButton::clicked, this, [&](bool) { mb.reject(); });
+        mb.exec();
+    });
+    connect (mView, &ScannerView::taskDelete, this, [=] (const QString& id) -> void {
+        qDebug() << "delete: " << id;
+        MessageBox mb ("提示", "您确定是否删除任务操作？", mView);
+        auto b = mb.addButton ("确定");
+        connect (b, &QPushButton::clicked, this, [&](bool) { ToPF::getInstance ()->taskDelete(id); mb.accept(); });
+        b = mb.addButton ("取消");
+        connect (b, &QPushButton::clicked, this, [&](bool) { mb.reject(); });
+        mb.exec();
+    });
+    // 单任务操作 - end
 
     connect (mModel, &QAbstractTableModel::rowsInserted, this, [=] (const QModelIndex& p, int first, int last) -> void {
         if (!mModel)return;
