@@ -12,6 +12,8 @@
 #include <QDebug>
 #include <QTimer>
 #include <utility>
+#include <fstream>
+#include <iostream>
 #include <QProcess>
 #include <sqlite3.h>
 #include <QFileInfo>
@@ -356,6 +358,101 @@ int ScanResultDB::getRowByItemID(const QString &id)
 void ScanResultDB::testInsertItem()
 {
 
+}
+
+void ScanResultDB::exportResultByTaskID(const QString& file, const QStringList &ids)
+{
+    Q_D(ScanResultDB);
+
+    // 事件ID(event_ID)， text
+    // 任务名称(task_name)， text
+    // 任务ID(task_id)， text
+    // 检查路径(scan_path)， text
+    // 策略名称(policy_name)， text
+    // 策略ID(policy_ID)， text
+    // 严重性(severity)， text
+    // 文件名(file_name)， text
+    // 文件路径(file_path)， text
+    // 时间(scan_time)， int
+    // IP(ip)， text
+    // 主机名(pc_name)， text
+    // MAC(mac)， text
+    // 操作系统类型(os)， text
+    // 文件类型(file_exte), text
+
+    g_return_if_fail(!ids.isEmpty());
+
+    std::ofstream outStream;
+    outStream.open (file.toUtf8().toStdString(), std::ios::out | std::ios::trunc);
+    outStream << "事件ID," << "任务名称," << "任务ID," << "检查路径," << "策略名称,"
+              << "策略ID," << "严重性," << "文件名," << "文件路径," << "时间,"
+              << "IP," << "主机名," << "MAC," << "操作系统类型," << "文件类型"
+              << std::endl;
+
+    QString sql = QString("SELECT sn, event_ID, task_name, task_id, scan_path, "
+                          " policy_name, policy_ID, serverity, file_name, file_path,"
+                          " scan_time, ip, pc_name, mac, os, file_exte "
+                          " FROM udisk_scan_result WHERE task_id IN (%1);").arg(ids.join (","));
+    {
+        d->open();
+        d->setRunning (true);
+        {
+            TaskDBLock lock;
+            lock.lock();
+            sqlite3_stmt* stmt = nullptr;
+            qDebug() << sql;
+            int ret = sqlite3_prepare_v2 (d->mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
+            if (SQLITE_OK == ret) {
+                while (SQLITE_DONE != sqlite3_step (stmt)) {
+                    QApplication::processEvents ();
+
+                    QString id = QString ("%1").arg (sqlite3_column_int64 (stmt, 0));
+                    QString eventID = (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 1)));
+                    QString taskName = (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 2)));
+                    QString taskID = (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 3)));
+                    QString scanPath = (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 4)));
+                    QString policyName = (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 5)));
+                    QString policyID = (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 6)));
+                    QString serverity = (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 7)));
+                    QString fileName = (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 8)));
+                    QString filePath = (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 9)));
+                    QString scanTime = QString("%1").arg (sqlite3_column_int64 (stmt, 10));
+                    QString ip = (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 11)));
+                    QString pcName = (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 12)));
+                    QString mac = (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 13)));
+                    QString os = (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 14)));
+                    QString fileExt = (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 15)));
+
+                    qDebug () << "id: " << id;
+
+                    if (nullptr == id || id.isEmpty ()) {
+                        continue;
+                    }
+
+                    outStream << eventID.toUtf8().toStdString() << ","
+                              << "\"" << taskName.toUtf8().toStdString() << "\"" << ","
+                              << taskID.toUtf8().toStdString() << ","
+                              << "\"" << scanPath.toUtf8().toStdString() << "\"" << ","
+                              << "\"" << policyName.toUtf8().toStdString() << "\"" << ","
+                              << policyID.toUtf8().toStdString() << ","
+                              << serverity.toUtf8().toStdString() << ","
+                              << "\"" << fileName.toUtf8().toStdString() << "\"" << ","
+                              << "\"" << filePath.toUtf8().toStdString() << "\"" << ","
+                              << scanTime.toUtf8().toStdString() << ","
+                              << ip.toUtf8().toStdString() << ","
+                              << pcName.toUtf8().toStdString() << ","
+                              << mac.toUtf8().toStdString() << ","
+                              << os.toUtf8().toStdString() << ","
+                              << "\"" << fileExt.toUtf8().toStdString() << "\"" << ","
+                              << std::endl;
+                }
+            }
+            else {
+                qWarning() << "query db error!";
+            }
+        }
+        d->setRunning (false);
+    }
 }
 
 

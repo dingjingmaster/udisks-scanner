@@ -172,6 +172,7 @@ MainWidget1::MainWidget1(QWidget *parent)
         qDebug() << "start: " << id;
 
     });
+
     connect (mView, &ScannerView::taskPause, this, [=] (const QString& id) -> void {
         qDebug() << "pause: " << id;
         MessageBox mb ("提示", "您确定是否暂停任务操作？", mView);

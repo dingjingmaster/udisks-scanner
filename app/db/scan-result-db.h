@@ -23,6 +23,10 @@ public:
     void setTaskID(const QString& id);
     // end - for model
 
+    // for - export
+    void exportResultByTaskID (const QString& file, const QStringList& ids);
+    // for - export
+
     // start - for test
     void testInsertItem();
     // end - for test
