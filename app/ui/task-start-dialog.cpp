@@ -11,9 +11,11 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 #include <QFileDialog>
+#include <QPushButton>
 #include <QStandardPaths>
 
 #include "push-button.h"
+#include "message-box.h"
 
 
 TaskStartDialog::TaskStartDialog(QWidget *parent)
@@ -88,12 +90,13 @@ TaskStartDialog::TaskStartDialog(QWidget *parent)
         dlg.setAcceptMode (QFileDialog::AcceptOpen);
         dlg.setDirectory (QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
         dlg.setFileMode (QFileDialog::Directory);
+        QString scanDir;
         if (QDialog::Accepted == dlg.exec()) {
             auto path = dlg.selectedFiles();
             qDebug() << "open path: " << path;
             if (path.isEmpty()) return;
-            auto l = path.first();
-            lb12->setText (l);
+            scanDir = path.first();
+            lb12->setText (scanDir);
         }
     });
 
@@ -112,6 +115,9 @@ TaskStartDialog::TaskStartDialog(QWidget *parent)
     });
 
     connect (lb12, &QLineEdit::textChanged, this, [=] (const QString& str) {
+        if (mScanDir.isEmpty()) {
+            mScanDir = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+        }
         mScanDir = str;
     });
 
@@ -120,7 +126,16 @@ TaskStartDialog::TaskStartDialog(QWidget *parent)
     });
 
     connect (btn1, &PushButton::clicked, this, [=] {
-        accept();
+        if (!QFile::exists (mScanDir)) {
+            MessageBox msg("提示", "请输入合法文件夹路径");
+            auto b = msg.addButton ("确定");
+            connect (b, qOverload<bool>(&QPushButton::clicked), this, [&] (bool) -> void { msg.reject(); });
+            msg.exec();
+            lb12->clear();
+        }
+        else {
+            accept();
+        }
     });
 
     connect (btn2, &PushButton::clicked, this, [=] { reject(); });
