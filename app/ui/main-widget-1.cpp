@@ -18,6 +18,7 @@
 #include "push-button.h"
 #include "message-box.h"
 #include "view/header-view.h"
+#include "db/scan-result-db.h"
 #include "view/scanner-view.h"
 #include "task-start-dialog.h"
 #include "scanner-task-delegate.h"
@@ -163,14 +164,39 @@ MainWidget1::MainWidget1(QWidget *parent)
     });
 
     // 导出
-    connect (btn22, &PushButton::clicked, this, [=]() -> void {
-        //
+    connect (btn22, &PushButton::clicked, this, [=] () -> void {
+        auto toE = mModel->getSelectedItems();
+        QStringList ids;
+        for (auto& l : toE) {
+            ids << l->getID();
+        }
+
+        if (ids.isEmpty()) {
+            return;
+        }
+
+        QFileDialog dlg;
+        dlg.setDefaultSuffix (".csv");
+        dlg.setAcceptMode (QFileDialog::AcceptSave);
+        dlg.setDirectory (QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
+        dlg.setFileMode (QFileDialog::ExistingFile);
+        if (QDialog::Accepted == dlg.exec()) {
+            auto path = dlg.selectedFiles();
+            qDebug() << "open path: " << path;
+            if (path.isEmpty()) return;
+            auto l = path.first();
+            ScanResultDB::getInstance()->exportResultByTaskID (l, ids);
+        }
     });
 
     // 单任务操作 - start
     connect (mView, &ScannerView::taskStart, this, [=] (const QString& id) -> void {
         qDebug() << "start: " << id;
-
+        TaskStartDialog dlg(this);
+        if (QDialog::Accepted == dlg.exec()) {
+            qDebug() << "\nscan: " << dlg.getScanDir() << "\nexpect scan: " << dlg.getExceptDir();
+            ToPF::getInstance()->taskStart(id, dlg.getScanDir(), dlg.getExceptDir());
+        }
     });
 
     connect (mView, &ScannerView::taskPause, this, [=] (const QString& id) -> void {
