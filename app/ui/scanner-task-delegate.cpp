@@ -69,7 +69,7 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
             break;
         }
         case ScannerTaskModel::TaskStatus: {
-            static const int fSize1 = p->fontMetrics().width ("扫扫扫  |");
+            static const int fSize1 = p->fontMetrics().width ("扫扫扫  |") + 4;
             static const int fSize2 = p->fontMetrics().width ("启动");
 
             int w = rect.width();
@@ -80,7 +80,12 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
             switch (item->getStatus()) {
                 case ScannerTaskItem::NoBegin: {
                     QRect st(startX1, startY, fSize1, mStatusHigh);
+                    p->save();
+                    auto fb = p->font();
+                    fb.setBold (true);
+                    p->setFont (fb);
                     p->drawText (st, "未开始  |");
+                    p->restore();
 
                     int startX2 = startX1 + fSize1 + mStatusMargin;
                     QRect qd(startX2, startY, fSize2, mStatusHigh);
@@ -107,7 +112,12 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
                 }
                 case ScannerTaskItem::Scanning: {
                     QRect st(startX1, startY, fSize1, mStatusHigh);
+                    p->save();
+                    auto fb = p->font();
+                    fb.setBold (true);
+                    p->setFont (fb);
                     p->drawText (st, "扫描中  |");
+                    p->restore();
 
                     int startX2 = startX1 + fSize1 + mStatusMargin;
                     QRect qd(startX2, startY, fSize2, mStatusHigh);
@@ -134,7 +144,12 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
                 }
                 case ScannerTaskItem::Stop: {
                     QRect st(startX1, startY, fSize1, mStatusHigh);
+                    p->save();
+                    auto fb = p->font();
+                    fb.setBold (true);
+                    p->setFont (fb);
                     p->drawText (st, "已停止  |");
+                    p->restore();
 
                     p->save();
                     p->setPen(Qt::blue);
@@ -161,7 +176,12 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
                 }
                 case ScannerTaskItem::Finish: {
                     QRect st(startX1, startY, fSize1, mStatusHigh);
+                    p->save();
+                    auto fb = p->font();
+                    fb.setBold (true);
+                    p->setFont (fb);
                     p->drawText (st, "已完成  |");
+                    p->restore();
 
                     p->save();
                     p->setPen(Qt::blue);
@@ -188,7 +208,12 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
                 }
                 case ScannerTaskItem::Suspended: {
                     QRect st(startX1, startY, fSize1, mStatusHigh);
+                    p->save();
+                    auto fb = p->font();
+                    fb.setBold (true);
+                    p->setFont (fb);
                     p->drawText (st, "已暂停  |");
+                    p->restore();
 
                     int startX2 = startX1 + fSize1 + mStatusMargin;
                     QRect qd(startX2, startY, fSize2, mStatusHigh);

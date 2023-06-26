@@ -31,6 +31,8 @@ private:
     ScannerView*            mView = nullptr;
     ScannerTaskModel*       mModel = nullptr;
 
+    QStringList             mCombList;
+
     const int               mItemCheckSize = 40;
     const int               mItemIdxSize = 90;
     const int               mItemStartTimeSize = 180;

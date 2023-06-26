@@ -46,9 +46,15 @@ MainWidget1::MainWidget1(QWidget *parent)
     btn1->setEnable(true);
     btn1->setText ("导入");
 
+    auto btn11 = new PushButton(nullptr, PushButton::Type3);
+    btn11->setEnable(true);
+    btn11->setText ("清除");
+
     l1->addWidget (lb1);
     l1->addWidget (mComboBox);
     l1->addWidget (btn1);
+    l1->addSpacing (10);
+    l1->addWidget (btn11);
     l1->addStretch ();
 
     auto btn21 = new PushButton(nullptr, PushButton::Type3);
@@ -65,8 +71,8 @@ MainWidget1::MainWidget1(QWidget *parent)
     mView->setItemDelegate (new ScannerTaskDelegate(this));
 
     mView->setModel (mModel);
-    mComboBox->setModel (mModel);
-    mComboBox->setModelColumn (2);
+//    mComboBox->setModel (mModel);
+//    mComboBox->setModelColumn (2);
     auto header = new HeaderView(Qt::Horizontal);
     mView->setHorizontalHeader (header);
 
@@ -119,11 +125,22 @@ MainWidget1::MainWidget1(QWidget *parent)
             qDebug() << "open path: " << path;
             if (path.isEmpty()) return;
             auto l = path.first();
-            ToPF::getInstance()->loadTask (l);
+            if (!mCombList.contains (l)) {
+                mCombList.append (l);
+                ToPF::getInstance()->loadTask (l);
+                QFileInfo fi(l);
+                mComboBox->addItem (fi.fileName());
+            }
         }
         else {
             qDebug() << "load task cancel!";
         }
+    });
+
+    // 清除
+    connect (btn11, &PushButton::clicked, this, [=] () -> void {
+        if (mComboBox)  mComboBox->clear();
+        mCombList.clear();
     });
 
     // 删除
@@ -194,6 +211,7 @@ MainWidget1::MainWidget1(QWidget *parent)
     });
     // 单任务操作 - end
 
+#if 0
     connect (mModel, &QAbstractTableModel::rowsInserted, this, [=] (const QModelIndex& p, int first, int last) -> void {
         if (!mModel)return;
         if (mModel->rowCount (QModelIndex()) > 0) {
@@ -207,6 +225,7 @@ MainWidget1::MainWidget1(QWidget *parent)
         mView->scrollTo (idx);
         mView->setCurrentIndex (idx);
     });
+#endif
 
     connect (mView, qOverload<const QString&>(&ScannerView::taskDetail), this, qOverload<const QString&>(&MainWidget1::taskDetail));
 
