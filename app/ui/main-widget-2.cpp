@@ -26,7 +26,7 @@ MainWidget2::MainWidget2(QWidget *parent)
     font1.setPointSizeF (font1.pointSizeF() + 3);
 
     auto font2 = qApp->font();
-    font2.setPointSizeF (font2.pointSizeF() - 2);
+    font2.setPointSizeF (font2.pointSizeF() - 1);
 
     mMainLayout = new QVBoxLayout;
     auto l1 = new QHBoxLayout;
