@@ -116,15 +116,15 @@ MainWidget1::MainWidget1(QWidget *parent)
     mView->horizontalHeader()->setSectionsClickable (false);
 
     // 导入
-    connect (btn1, &PushButton::clicked, this, [=] () -> void {
+    connect (btn1, &PushButton::clicked, this, [&] () -> void {
         QFileDialog dlg;
         dlg.setAcceptMode (QFileDialog::AcceptOpen);
         dlg.setDirectory (QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
         dlg.setFileMode (QFileDialog::ExistingFile);
         if (QDialog::Accepted == dlg.exec()) {
             auto path = dlg.selectedFiles();
-            qDebug() << "open path: " << path;
             if (path.isEmpty()) return;
+            qDebug() << "open path: " << path;
             auto l = path.first();
             if (!mCombList.contains (l)) {
                 mCombList.append (l);
