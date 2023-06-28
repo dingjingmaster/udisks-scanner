@@ -31,6 +31,9 @@ public:
     void testInsertItem();
     // end - for test
 
+    void onLoad();
+    void clear();
+
 private:
     explicit ScanResultDB (const QString& dbPath, QObject* parent=nullptr);
 

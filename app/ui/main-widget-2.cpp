@@ -13,6 +13,7 @@
 #include "utils/tools.h"
 #include "db/scan-task-db.h"
 #include "view/result-view.h"
+#include "db/scan-result-db.h"
 #include "model/result-model.h"
 #include "model/scanner-task-item.h"
 
@@ -154,6 +155,7 @@ void MainWidget2::resizeEvent(QResizeEvent *event)
 
 void MainWidget2::showResult(const QString &taskID)
 {
+    show ();
     mTaskID = taskID;
 #define DW  "单位名称："
 #define TN  "任务名称："
@@ -180,13 +182,14 @@ void MainWidget2::showResult(const QString &taskID)
     mSP->setText (QString("%1%2").arg (SP, item->getScanPath()));
     mSNP->setText (QString("%1%2").arg (SNP, item->getScanOutPath()));
     mST->setText (QString("%1%2").arg (ST, item->getStartTimeStr()));
-
-    show ();
+    ScanResultDB::getInstance()->setTaskID (mTaskID);
+    ScanResultDB::getInstance()->onLoad();
 }
 
 void MainWidget2::hideResult()
 {
     mTaskID = "";
-
     hide();
+
+    mModel->clearData();
 }

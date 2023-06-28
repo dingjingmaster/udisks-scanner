@@ -48,9 +48,18 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
             cbOp.state |= QStyle::State_Enabled;
             cbOp.rect = rectCB;
 
+            QPalette palette = QApplication::palette();
+            QColor red = qRgb(255, 138, 140);
+
+            palette.setColor (QPalette::All, QPalette::Highlight, red);
+            palette.setColor (QPalette::Current, QPalette::Highlight, red);
+            palette.setColor (QPalette::All, QPalette::HighlightedText, Qt::white);
+            palette.setColor (QPalette::Current, QPalette::HighlightedText, Qt::white);
+            cbOp.palette = palette;
+
             if (index.model()->data(index).toBool()) {
                 cbOp.state |= QStyle::State_On;
-                auto palette = cbOp.palette;
+                cbOp.state |= QStyle::State_Selected;
                 palette.setColor (QPalette::All, QPalette::Highlight, QColor(204, 48, 51));
                 cbOp.palette = palette;
             } else {

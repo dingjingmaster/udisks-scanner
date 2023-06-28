@@ -36,7 +36,9 @@ ResultModel::ResultModel(QObject *parent)
 
 void ResultModel::clearData()
 {
-
+    beginResetModel();
+    mScanResultDB->clear();
+    endResetModel();
 }
 
 QModelIndex ResultModel::getIndexByItem(const ResultItem *item, int column)

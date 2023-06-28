@@ -218,6 +218,7 @@ MainWidget1::MainWidget1(QWidget *parent)
         connect (b, &QPushButton::clicked, this, [&](bool) { mb.reject(); });
         mb.exec();
     });
+
     connect (mView, &ScannerView::taskStop, this, [=] (const QString& id) -> void {
         qDebug() << "stop: " << id;
         MessageBox mb ("提示", "您确定是否停止任务操作？", mView);
@@ -227,6 +228,7 @@ MainWidget1::MainWidget1(QWidget *parent)
         connect (b, &QPushButton::clicked, this, [&](bool) { mb.reject(); });
         mb.exec();
     });
+
     connect (mView, &ScannerView::taskDelete, this, [=] (const QString& id) -> void {
         qDebug() << "delete: " << id;
         MessageBox mb ("提示", "您确定是否删除任务操作？", mView);
@@ -312,7 +314,7 @@ MainWidget1::MainWidget1(QWidget *parent)
     });
 
 
-#if 1
+#if 0
     // test
     mModel->test();
 #endif

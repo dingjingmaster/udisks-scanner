@@ -17,10 +17,10 @@ target_link_options(udisks-scanner
         PUBLIC -static-libgcc -static-libstdc++
         )
 target_link_libraries(udisks-scanner
-        Qt5::Widgets Qt5::Network
-        ${GIO_LIBRARIES} ${SQLITE3_LIBRARIES}
         -Wl,-rpath=./lib/
         -Wl,-rpath=../lib/
+        ${GIO_LIBRARIES} ${SQLITE3_LIBRARIES}
+        Qt5::Widgets Qt5::Network
         )
 target_include_directories(udisks-scanner
         PRIVATE ${CMAKE_SOURCE_DIR}/app

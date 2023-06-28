@@ -15,11 +15,14 @@
 #include <QApplication>
 #include <QFileSystemWatcher>
 
+#include "common/log.h"
 #include "utils/tools.h"
 #include "scan-task-db.h"
+#include "common/global.h"
 #include "ui/message-box.h"
 #include "model/scanner-task-item.h"
 #include "model/scanner-task-model.h"
+
 
 ScanTaskDB* ScanTaskDB::gInstance = nullptr;
 
@@ -128,6 +131,8 @@ void ScanTaskDBPrivate::onDBChanged()
                       "task_scan_file_count, task_scan_finished_file_count,"
                       "task_status "
                       "FROM scan_task;";
+
+    LOG_DEBUG("sql: %s", sql);
     {
         open();
         setRunning (true);
@@ -139,7 +144,6 @@ void ScanTaskDBPrivate::onDBChanged()
             TaskDBLock lock;
             lock.lock();
             sqlite3_stmt* stmt = nullptr;
-            qDebug() << sql;
             int ret = sqlite3_prepare_v2 (mDB, sql, -1, &stmt, nullptr);
             if (SQLITE_OK == ret) {
                 while (SQLITE_DONE != sqlite3_step (stmt)) {
@@ -295,7 +299,7 @@ ScanTaskDB *ScanTaskDB::getInstance()
     static gsize ii = 0;
     if (g_once_init_enter(&ii)) {
         if (!gInstance) {
-            gInstance = new ScanTaskDB(DB_PATH);
+            gInstance = new ScanTaskDB(gDBPath);
             g_once_init_leave(&ii, 1);
         }
     }
@@ -384,7 +388,7 @@ void ScanTaskDB::testInsertItem()
 //    qInfo() << DB_TABLE;
 
     QProcess::execute("rm", QStringList() << "-f" << d->mDBPath);
-    if (!QFileInfo::exists(DB_PATH)) {
+    if (!QFileInfo::exists(gDBPath)) {
         QProcess::startDetached("/usr/bin/sqlite3", QStringList() << d->mDBPath << DB_TABLE);
     }
 
@@ -413,7 +417,6 @@ void ScanTaskDB::testInsertItem()
                                   .arg (100)
                                   .arg (random() % 100)
                                   .arg (random() % 5);
-        qDebug() << sql;
         sqlite3_exec (db, sql.toUtf8().constData(), nullptr, nullptr, nullptr);
     }
     sqlite3_close (db);

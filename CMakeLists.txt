@@ -23,9 +23,12 @@ add_definitions(
         -D PACKAGE_NAME=\\"${PROJECT_NAME}\\"
         -D G_LOG_DOMAIN=\\"${PROJECT_NAME}\\"
         -D INSTALL_PATH=\\"/usr/local/ultrasec/\\"
-        -D DB_PATH=\\"/tmp/scan_task.db\\"
-        -D IPC_PF_SOCKET=\\"/tmp/udisks.sock\\"
+        -D TASK_DB_LOCKER=\\"/tmp/.est.db.lock\\"
+        -D IPC_PF_SOCKET=\\"/tmp/ultrasec_pf.sock\\"
         -D PACKAGE_VERSION=\\"${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}\\")
+
+# -D DB_PATH=\\"/tmp/scan_task.db\\"
+
 
 find_package (PkgConfig)
 find_package(Qt5 COMPONENTS Widgets Network Gui REQUIRED)

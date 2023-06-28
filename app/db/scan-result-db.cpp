@@ -20,7 +20,9 @@
 #include <QApplication>
 #include <QFileSystemWatcher>
 
+#include "common/log.h"
 #include "utils/tools.h"
+#include "common/global.h"
 #include "ui/message-box.h"
 #include "model/result-item.h"
 #include "model/result-model.h"
@@ -197,6 +199,7 @@ void ScanResultDBPrivate::onDBChanged()
 
     QString sql = QString("SELECT Sn, File_name, Scan_time "
                       " FROM udisk_scan_result WHERE task_id=%1;").arg(mTaskID);
+    LOG_DEBUG("sql: %s", sql.toUtf8().constData());
     {
         open();
         setRunning (true);
@@ -279,7 +282,7 @@ ScanResultDB *ScanResultDB::getInstance()
     static gsize ii = 0;
     if (g_once_init_enter(&ii)) {
         if (!gInstance) {
-            gInstance = new ScanResultDB(DB_PATH);
+            gInstance = new ScanResultDB(gDBPath);
             g_once_init_leave(&ii, 1);
         }
     }
@@ -453,6 +456,22 @@ void ScanResultDB::exportResultByTaskID(const QString& file, const QStringList &
         }
         d->setRunning (false);
     }
+}
+
+void ScanResultDB::onLoad()
+{
+    Q_D(ScanResultDB);
+
+    d->onDBChanged();
+}
+
+void ScanResultDB::clear()
+{
+    Q_D(ScanResultDB);
+    d->mLocker.lock();
+    d->mData.clear();
+    d->mDataIdx.clear();
+    d->mLocker.unlock();
 }
 
 
