@@ -28,8 +28,7 @@ add_definitions(
         -D PACKAGE_VERSION=\\"${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}\\")
 
 find_package (PkgConfig)
-find_package(Qt5LinguistTools REQUIRED)
-find_package(Qt5 COMPONENTS Core Widgets Network Gui X11Extras REQUIRED)
+find_package(Qt5 COMPONENTS Widgets Network Gui REQUIRED)
 
 pkg_check_modules(GIO REQUIRED gio-2.0)
 pkg_check_modules(SQLITE3 REQUIRED sqlite3)

@@ -51,6 +51,7 @@ int main (int argc, char* argv[])
 
     QPalette palette = QApplication::palette();
     QColor red = qRgb(255, 138, 140);
+
     palette.setColor (QPalette::All, QPalette::Highlight, red);
     palette.setColor (QPalette::All, QPalette::HighlightedText, Qt::white);
     QApplication::setPalette (palette);

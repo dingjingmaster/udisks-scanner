@@ -13,17 +13,19 @@ add_executable(udisks-scanner main.cpp res.qrc
         ${SINGLEAPP_GUI_SRC} ${COMMON_SRC} ${UI_SRC} ${UDISKS_SCANNER_SRC}
         ${VIEW_SRC} ${MODEL_SRC} ${DB_SRC} ${UTILS_SRC} ${IPC_SRC}
         )
-target_link_libraries(udisks-scanner -lX11 -lsqlite3
-        Qt5::Widgets Qt5::Network Qt5::X11Extras
-        ${GIO_LIBRARIES}
+target_link_options(udisks-scanner
+        PUBLIC -static-libgcc -static-libstdc++
+        )
+target_link_libraries(udisks-scanner
+        Qt5::Widgets Qt5::Network
+        ${GIO_LIBRARIES} ${SQLITE3_LIBRARIES}
         -Wl,-rpath=./lib/
         -Wl,-rpath=../lib/
         )
 target_include_directories(udisks-scanner
         PRIVATE ${CMAKE_SOURCE_DIR}/app
         PUBLIC
-        ${Qt5Core_INCLUDE_DIRS}
-        ${Qt5Widget_INCLUDE_DIRS} ${Qt5X11Extras_INCLUDE_DIRS}
-        ${GIO_INCLUDE_DIRS}
+        ${Qt5Widget_INCLUDE_DIRS}
+        ${GIO_INCLUDE_DIRS} ${SQLITE3_INCLUDE_DIRS}
         )
 

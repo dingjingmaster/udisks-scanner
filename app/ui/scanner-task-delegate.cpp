@@ -40,14 +40,6 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
 
     p->setFont (itemOption.font);
 
-    if (item->getIsChecked()) {
-        p->save();
-        p->setPen (Qt::NoPen);
-        p->setBrush (QColor(255, 138, 140));
-        p->drawRect (rect);
-        p->restore();
-    }
-
     switch (index.column()) {
         case 0: {
             QRect rectCB(rect.left() + (rect.width() - 20) / 2, rect.top() + (rect.height() - 20) / 2, 20, 20);
@@ -56,15 +48,15 @@ void ScannerTaskDelegate::paint(QPainter *p, const QStyleOptionViewItem &option,
             cbOp.state |= QStyle::State_Enabled;
             cbOp.rect = rectCB;
 
-            QBrush bth;
-            bth.setColor(Qt::darkRed);
             if (index.model()->data(index).toBool()) {
                 cbOp.state |= QStyle::State_On;
+                auto palette = cbOp.palette;
+                palette.setColor (QPalette::All, QPalette::Highlight, QColor(204, 48, 51));
+                cbOp.palette = palette;
             } else {
                 cbOp.state |= QStyle::State_Off;
             }
 
-            p->setBrush(bth);
             QApplication::style()->drawControl(QStyle::CE_CheckBox, &cbOp, p);
             break;
         }

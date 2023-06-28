@@ -54,6 +54,13 @@ void HeaderView::paintSection(QPainter *p, const QRect &rect, int logicalIndex) 
         cbOp.state |= QStyle::State_Enabled;
         cbOp.state |= QStyle::State_Sunken;
         cbOp.state |= mChecked ? QStyle::State_On : QStyle::State_Off;
+
+        if (mChecked) {
+            auto palette = cbOp.palette;
+            palette.setColor (QPalette::All, QPalette::Highlight, QColor(204, 48, 51));
+            cbOp.palette = palette;
+        }
+
         cbOp.rect = rectCB;
         QApplication::style()->drawControl(QStyle::CE_CheckBox, &cbOp, p);
     }
