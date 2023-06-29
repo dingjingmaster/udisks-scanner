@@ -197,8 +197,8 @@ void ScanResultDBPrivate::onDBChanged()
 
     Q_Q(ScanResultDB);
 
-    QString sql = QString("SELECT Sn, File_name, Scan_time "
-                      " FROM udisk_scan_result WHERE task_id=%1;").arg(mTaskID);
+    QString sql = QString("SELECT sn, file_name, scan_time "
+                      " FROM udisk_scan_result WHERE task_id='%1';").arg(mTaskID);
     LOG_DEBUG("sql: %s", sql.toUtf8().constData());
     {
         open();
@@ -215,12 +215,11 @@ void ScanResultDBPrivate::onDBChanged()
             int ret = sqlite3_prepare_v2 (mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
             if (SQLITE_OK == ret) {
                 while (SQLITE_DONE != sqlite3_step (stmt)) {
+                    QApplication::processEvents();
                     if (g_cancellable_is_cancelled (mCancel)) {
                         qDebug() << "cancelled";
                         break;
                     }
-
-                    QApplication::processEvents();
 
                     QString id = QString("%1").arg (sqlite3_column_int64(stmt, 0));
                     QString name(reinterpret_cast<const char*> (sqlite3_column_text (stmt, 1)));
@@ -360,7 +359,29 @@ int ScanResultDB::getRowByItemID(const QString &id)
 }
 void ScanResultDB::testInsertItem()
 {
+    Q_D(ScanResultDB);
 
+    sqlite3* db = nullptr;
+    int rc = sqlite3_open(d->mDBPath.toUtf8().constData(), &db);
+    if (SQLITE_OK != rc) {
+        printf ("open db error!\n");
+        qApp->exit (-1);
+    }
+
+    for (int i = 0; i < 1000000; ++i) {
+        TaskDBLock l;
+        l.lock();
+        QString sql = QString("INSERT INTO `udisk_scan_result` "
+                              "(`task_id`, `file_name`, `file_path`)"
+                              "VALUES"
+                              "('%1', '%2', '%3');"
+                              "").arg (QString("ID-%1").arg (375),
+                                       QString("name-%1").arg (i),
+                                       "/path/to/scan/dir/filterout/|/p/out/");
+        qDebug() << sql;
+        sqlite3_exec (db, sql.toUtf8().constData(), nullptr, nullptr, nullptr);
+    }
+    sqlite3_close (db);
 }
 
 void ScanResultDB::exportResultByTaskID(const QString& file, const QStringList &ids)
@@ -392,8 +413,8 @@ void ScanResultDB::exportResultByTaskID(const QString& file, const QStringList &
               << "IP," << "主机名," << "MAC," << "操作系统类型," << "文件类型"
               << std::endl;
 
-    QString sql = QString("SELECT sn, event_ID, task_name, task_id, scan_path, "
-                          " policy_name, policy_ID, serverity, file_name, file_path,"
+    QString sql = QString("SELECT sn, event_ID, task_name, task_id, scan_path,"
+                          " policy_name, policy_ID, severity, file_name, file_path,"
                           " scan_time, ip, pc_name, mac, os, file_exte "
                           " FROM udisk_scan_result WHERE task_id IN (%1);").arg(ids.join (","));
     {

@@ -368,24 +368,28 @@ void ScanTaskDB::testInsertItem()
     ");"                                                                    \
     ""                                                                      \
     "CREATE TABLE udisk_scan_result ("                                      \
-    "   Sn                              INTEGER PRIMARY KEY AUTOINCREMENT," \
-    "   task_id                         VARCHAR(32)             NOT NULL,"  \
-    "   Match_id                        INTEGER                         ,"  \
-    "   Org_name                        TEXT                            ,"  \
-    "   Task                            TEXT                    NOT NULL,"  \
-    "   Policy_name                     TEXT                    NOT NULL,"  \
-    "   Pc_name                         TEXT                    NOT NULL,"  \
-    "   Ip                              VARCHAR(16)             NOT NULL,"  \
-    "   Mac                             VARCHAR(17)             NOT NULL,"  \
-    "   Scan_path                       TEXT                            ,"  \
-    "   Not_scan_path                   TEXT                            ,"  \
-    "   Scan_time                       INTEGER                 NOT NULL,"  \
-    "   File_name                       TEXT                    NOT NULL,"  \
-    "   Context                         TEXT                             "  \
+    "   sn                              INTEGER PRIMARY KEY AUTOINCREMENT," \
+    "   match_id                        INTEGER                         ,"  \
+    "   org_name                        TEXT                            ,"  \
+    "   ip                              VARCHAR(16)                     ,"  \
+    "   pc_name                         TEXT                            ,"  \
+    "   mac                             VARCHAR(17)                     ,"  \
+    "   task_id                         VARCHAR(32) DEFAULT ''  NOT NULL,"  \
+    "   task_name                       VARCHAR(32) DEFAULT ''  NOT NULL,"  \
+    "   scan_path                       TEXT                            ,"  \
+    "   not_scan_path                   TEXT                            ,"  \
+    "   policy_ID                       TEXT                            ,"  \
+    "   policy_name                     TEXT                            ,"  \
+    "   event_ID                        TEXT                            ,"  \
+    "   file_name                       TEXT                            ,"  \
+    "   file_path                       TEXT                            ,"  \
+    "   scan_time                       INTEGER                         ,"  \
+    "   file_exte                       TEXT                            ,"  \
+    "   severity                        TEXT                            ,"  \
+    "   os                              TEXT                            ,"  \
+    "   context                         TEXT                             "  \
     ");"                                                                    \
     ""
-
-//    qInfo() << DB_TABLE;
 
     QProcess::execute("rm", QStringList() << "-f" << d->mDBPath);
     if (!QFileInfo::exists(gDBPath)) {

@@ -168,7 +168,7 @@ MainWidget1::MainWidget1(QWidget *parent)
         auto toE = mModel->getSelectedItems();
         QStringList ids;
         for (auto& l : toE) {
-            ids << l->getID();
+            ids << QString("'%1'").arg (l->getID());
         }
 
         if (ids.isEmpty()) {

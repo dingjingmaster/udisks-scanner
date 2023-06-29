@@ -27,9 +27,6 @@ add_definitions(
         -D IPC_PF_SOCKET=\\"/tmp/ultrasec_pf.sock\\"
         -D PACKAGE_VERSION=\\"${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}\\")
 
-# -D DB_PATH=\\"/tmp/scan_task.db\\"
-
-
 find_package (PkgConfig)
 find_package(Qt5 COMPONENTS Widgets Network Gui REQUIRED)
 
