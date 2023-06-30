@@ -23,6 +23,7 @@ ScannerTaskModel::ScannerTaskModel(QObject *parent)
     connect (mScanTaskDB, &ScanTaskDB::delTasks, this, [=] (QList<QString>& ls) {
         for (const auto& it : ls) {
             auto row = mScanTaskDB->getRowByItemID(it);
+            qDebug() << "delete item: " << it << " -- " << row;
             beginRemoveRows (QModelIndex(), row, 1);
             endRemoveRows();
         }

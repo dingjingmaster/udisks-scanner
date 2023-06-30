@@ -22,3 +22,10 @@ target_include_directories(demo-scan-result-bentch
         PUBLIC ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${SQLITE3_INCLUDE_DIRS} ${GIO_INCLUDE_DIRS})
 target_link_libraries (demo-scan-result-bentch
         Qt5::Core Qt5::Network Qt5::Gui Qt5::Widgets ${SQLITE3_LIBRARIES} ${GIO_LIBRARIES})
+
+add_executable (demo-start-pf
+        ${CMAKE_SOURCE_DIR}/tools/demo-start-pf.cpp)
+target_include_directories(demo-start-pf
+        PUBLIC ${Qt5Gui_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${GIO_INCLUDE_DIRS})
+target_link_libraries (demo-start-pf
+        Qt5::Core Qt5::Network Qt5::Gui Qt5::Widgets ${GIO_LIBRARIES})

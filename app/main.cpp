@@ -8,12 +8,15 @@
 
 #include <gio/gio.h>
 
-#include <QDebug>
 #include <QFile>
+#include <QDebug>
+#include <QProcess>
+#include <QPushButton>
 #include <QStyleFactory>
 
 #include "../common/log.h"
 #include "ui/main-window.h"
+#include "ui/message-box.h"
 
 
 const char*             gLogPath = "/tmp/udisk-scanner.log";
@@ -26,25 +29,6 @@ int main (int argc, char* argv[])
     // 初始化日志输出
     g_log_set_writer_func (log_handler, nullptr, nullptr);
     qInstallMessageHandler (messageOutput);
-
-    char* path1 = nullptr;
-    char* pathDir = nullptr;
-    if (g_str_has_prefix(argv[0], "/")) {
-        path1 = g_strdup(argv[0]);
-    }
-    else {
-        path1 = g_strdup_printf("%s/%s", g_get_current_dir(), argv[0]);
-    }
-
-    g_return_val_if_fail(path1, -1);
-    pathDir = g_path_get_dirname (path1);
-    g_return_val_if_fail(pathDir, -2);
-
-    gDBPath = g_strdup_printf ("%s/../dat/db_task/EstDlpSEDataBase.db", pathDir);
-    if (path1)      g_free (path1);
-    if (pathDir)    g_free (pathDir);
-
-    LOG_DEBUG("DB Path: %s", gDBPath);
 
     QCoreApplication::setApplicationVersion (PACKAGE_VERSION);
     QGuiApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
@@ -72,32 +56,30 @@ int main (int argc, char* argv[])
 
     QPalette palette = QApplication::palette();
     QColor red = qRgb(255, 138, 140);
-
     palette.setColor (QPalette::All, QPalette::Highlight, red);
     palette.setColor (QPalette::All, QPalette::HighlightedText, Qt::white);
-
-    /*
-
-    enum ColorGroup { Active, Disabled, Inactive, NColorGroups, Current, All, Normal = Active };
-    Q_ENUM(ColorGroup)
-    enum ColorRole { WindowText, Button, Light, Midlight, Dark, Mid,
-                     Text, BrightText, ButtonText, Base, Window, Shadow,
-                     Highlight, HighlightedText,
-                     Link, LinkVisited,
-                     AlternateBase,
-                     NoRole,
-                     ToolTipBase, ToolTipText,
-                     PlaceholderText,
-                     NColorRoles = PlaceholderText + 1,
-#if QT_DEPRECATED_SINCE(5, 13)
-                     Foreground Q_DECL_ENUMERATOR_DEPRECATED_X("Use QPalette::WindowText instead") = WindowText,
-                     Background Q_DECL_ENUMERATOR_DEPRECATED_X("Use QPalette::Window instead") = Window
-#endif
-                   };
-     */
-
-
     QApplication::setPalette (palette);
+
+
+    {
+        g_autofree char* path1 = nullptr;
+        if (g_str_has_prefix(argv[0], "/")) {
+            path1 = g_strdup(argv[0]);
+        }
+        else {
+            path1 = g_strdup_printf("%s/%s", g_get_current_dir(), argv[0]);
+        }
+
+        g_return_val_if_fail(path1, -1);
+        g_autofree char* pathDir = g_path_get_dirname (path1);
+        g_return_val_if_fail(pathDir, -2);
+        g_autofree char* cmd = g_strdup_printf ("cd %s && %s/policyfilter.sh &> /dev/null", pathDir, pathDir);
+        LOG_WARNING("launch pf cmd: %s", cmd);
+        system (cmd);
+        gDBPath = g_strdup_printf ("%s/../dat/db_task/EstDlpSEDataBase.db", pathDir);
+        LOG_DEBUG("DB Path: %s", gDBPath);
+    }
+
 
     MainWindow ew;
     ew.setWindowTitle ("数据安全检查工具——单机版");
