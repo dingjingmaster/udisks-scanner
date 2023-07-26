@@ -33,7 +33,7 @@ MainWindow::MainWindow (QWidget *parent)
     mMainLayout->setContentsMargins (0, 0, 0, 0);
 
     mHeader = new MainHeader;
-    mHeader->setTitle ("数据安全检查工具——单机版");
+    mHeader->setTitle ("重要数据安全检查");
     mMainLayout->addWidget(mHeader);
 
     mHeader->showMin();
