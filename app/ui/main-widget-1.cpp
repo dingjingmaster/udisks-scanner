@@ -179,7 +179,7 @@ MainWidget1::MainWidget1(QWidget *parent)
         dlg.setDefaultSuffix (".csv");
         dlg.setAcceptMode (QFileDialog::AcceptSave);
         dlg.setDirectory (QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
-        dlg.setFileMode (QFileDialog::ExistingFile);
+        dlg.setFileMode (QFileDialog::AnyFile);
         if (QDialog::Accepted == dlg.exec()) {
             auto path = dlg.selectedFiles();
             qDebug() << "open path: " << path;
