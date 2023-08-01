@@ -13,9 +13,9 @@ add_executable(udisks-scanner main.cpp res.qrc
         ${SINGLEAPP_GUI_SRC} ${COMMON_SRC} ${UI_SRC} ${UDISKS_SCANNER_SRC}
         ${VIEW_SRC} ${MODEL_SRC} ${DB_SRC} ${UTILS_SRC} ${IPC_SRC}
         )
-target_link_options(udisks-scanner
-        PUBLIC -static-libgcc -static-libstdc++
-        )
+#target_link_options(udisks-scanner
+#        PUBLIC -static-libgcc -static-libstdc++
+#        )
 target_link_libraries(udisks-scanner
         -Wl,-rpath=./lib/
         -Wl,-rpath=../lib/

@@ -19,6 +19,7 @@
 #include <QFileInfo>
 #include <QApplication>
 #include <QFileSystemWatcher>
+#include <QDateTime>
 
 #include "common/log.h"
 #include "utils/tools.h"
@@ -440,7 +441,8 @@ void ScanResultDB::exportResultByTaskID(const QString& file, const QStringList &
                     QString serverity = (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 7)));
                     QString fileName = (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 8)));
                     QString filePath = (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 9)));
-                    QString scanTime = QString("%1").arg (sqlite3_column_int64 (stmt, 10));
+                    QDateTime dt = QDateTime::fromTime_t(sqlite3_column_int64(stmt, 10));
+                    QString scanTime = dt.toString("yyyy-MM-dd hh:mm:ss");
                     QString ip = (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 11)));
                     QString pcName = (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 12)));
                     QString mac = (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 13)));

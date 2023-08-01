@@ -3,5 +3,8 @@
         <file>data/stylesheet.qss</file>
         <file>data/dsm.png</file>
         <file>data/dsip.png</file>
+        <file>data/max.png</file>
+        <file>data/min.png</file>
+        <file>data/close.png</file>
     </qresource>
 </RCC>

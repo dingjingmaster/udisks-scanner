@@ -53,30 +53,31 @@ void HeaderButton::onTypeChanged(Type type)
 
     switch (type) {
     case MIN: {
-        //path = ":/data/min.png";
-        path = "window-minimize-symbolic";
+        path = ":/data/min.png";
+//        path = "window-minimize-symbolic";
         break;
     }
     case MAX: {
-        //path = ":/data/max.png";
-        path = "window-maximize-symbolic";
+        path = ":/data/max.png";
+//        path = "window-maximize-symbolic";
         break;
     }
     case CLOSE: {
-        //path = ":/data/close.png";
-        path = "window-close-symbolic";
+        path = ":/data/close.png";
+//        path = "window-close-symbolic";
         break;
     }
     case RESTORE: {
-        //path = ":/data/restore.png";
-        path = "window-restore-symbolic";
+        path = ":/data/max.png";
+//        path = "window-restore-symbolic";
         break;
     }
     default:
         break;
     }
     
-    setIcon(QIcon(transColor(QIcon::fromTheme(path).pixmap (width(), height()))));
+//    setIcon(QIcon(transColor(QIcon::fromTheme(path).pixmap (width(), height()))));
+    setIcon(QIcon(transColor(QIcon(path).pixmap (width(), height()))));
 
     update();
 }
