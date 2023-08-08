@@ -129,7 +129,7 @@ TaskStartDialog::TaskStartDialog(QWidget *parent)
         if (!QFile::exists (mScanDir)) {
             MessageBox msg("提示", "请输入合法文件夹路径");
             auto b = msg.addButton ("确定");
-            connect (b, qOverload<bool>(&QPushButton::clicked), this, [&] (bool) -> void { msg.reject(); });
+            connect (b, &QPushButton::clicked, this, [&] (bool) -> void { msg.reject(); });
             msg.exec();
             lb12->clear();
         }

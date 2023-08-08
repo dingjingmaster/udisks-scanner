@@ -126,7 +126,7 @@ MainWidget2::MainWidget2(QWidget *parent)
     mView->setSelectionMode (QAbstractItemView::SingleSelection);
 //    mView->horizontalHeader()->setSelectionMode (QHeaderView::SingleSelection);
 
-    connect (btn1, qOverload<>(&PushButton::clicked), this, qOverload<>(&MainWidget2::showTaskList));
+    connect (btn1, &PushButton::clicked, this, &MainWidget2::showTaskList);
 
 #if 1
     mModel->test();

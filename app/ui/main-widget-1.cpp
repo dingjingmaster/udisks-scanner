@@ -256,7 +256,7 @@ MainWidget1::MainWidget1(QWidget *parent)
     });
 #endif
 
-    connect (mView, qOverload<const QString&>(&ScannerView::taskDetail), this, qOverload<const QString&>(&MainWidget1::taskDetail));
+    connect (mView, &ScannerView::taskDetail, this, &MainWidget1::taskDetail);
 
     connect (header, &HeaderView::checkBoxClicked, this, [=] (bool c) -> void {
         if (!mModel)return;
