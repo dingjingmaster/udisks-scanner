@@ -35,7 +35,7 @@ void ResultItem::setFileTime(qint64 fileTime)
 
 QString ResultItem::getFileTimeStr()
 {
-    return QDateTime::fromMSecsSinceEpoch (getFileTime()).toString ("yyyy-MM-dd hh:mm:ss");
+    return QDateTime::fromSecsSinceEpoch (getFileTime()).toString ("yyyy-MM-dd hh:mm:ss");
 }
 
 qint64 ResultItem::getFileTime()
