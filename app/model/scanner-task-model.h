@@ -34,6 +34,7 @@ private:
     void resetModel ();
 
 Q_SIGNALS:
+    void clearAll();
     void updateView();
 
 public Q_SLOTS:

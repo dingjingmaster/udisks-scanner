@@ -24,9 +24,17 @@ ScannerTaskModel::ScannerTaskModel(QObject *parent)
         for (const auto& it : ls) {
             auto row = mScanTaskDB->getRowByItemID(it);
             qDebug() << "delete item: " << it << " -- " << row;
-            beginRemoveRows (QModelIndex(), row, 1);
-            endRemoveRows();
+//            beginRemoveRows (QModelIndex(), row, 1);
+//            endRemoveRows();
+            removeRow (row);
         }
+    });
+
+    connect (mScanTaskDB, &ScanTaskDB::dbCountChanged, this, [=] (int curCount) {
+        if (curCount <= 0) {
+            clearAll();
+        }
+        updateView();
     });
 }
 
@@ -128,18 +136,6 @@ QVariant ScannerTaskModel::data(const QModelIndex &index, int role) const
             break;
         }
     }
-    /*
-    else if (Qt::CheckStateRole == role) {
-        if (0 == index.column()) {
-            return false;
-        }
-    }
-    else if (Qt::EditRole == role) {
-        if (0 == index.column()) {
-            return true;
-        }
-    }
-     */
 
     return {};
 }
@@ -217,6 +213,8 @@ bool ScannerTaskModel::removeRows(int row, int count, const QModelIndex &parent)
 {
     beginRemoveRows(parent, row, row + count - 1);
     endRemoveRows();
+
+    qDebug() << "row count: " << rowCount(QModelIndex());
 
     return true;
 }

@@ -19,6 +19,7 @@ public:
     int rowCount();
     std::shared_ptr<ScannerTaskItem> getItemByIndex(int row);
     void delItemById(const QString& id);
+    void delItemByIds(const QStringList& ids);
     void setSelectedAll(bool c);
     void setSelectedByRow(int row, bool c);
     bool isCheckAllItems();
@@ -37,6 +38,7 @@ private:
     explicit ScanTaskDB(const QString& dbPath, QObject* parent = nullptr);
 
 Q_SIGNALS:
+    void dbCountChanged (int curCount);
     void delTasks (QList<QString>& ls);
     void addTasks (QList<QString>& ls);
     void loadTaskFinished ();

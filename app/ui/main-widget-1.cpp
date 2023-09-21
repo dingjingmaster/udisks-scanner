@@ -286,6 +286,11 @@ MainWidget1::MainWidget1(QWidget *parent)
         }
     });
 
+    connect (mModel, &ScannerTaskModel::clearAll, this, [=] () -> void {
+        header->setChecked (false);
+        Q_EMIT checkedItem (false);
+    });
+
     connect (mView, &QAbstractItemView::clicked, this, [=] (const QModelIndex &index) {
         if (!index.isValid())   return;
         if (index.column() == 0) {

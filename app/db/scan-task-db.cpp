@@ -139,6 +139,9 @@ void ScanTaskDBPrivate::onDBChanged()
 
         QSet<QString> addedTasks;
         auto last = getCurrentTaskIds().toSet();
+        auto lastC = last.size();
+
+        qDebug() << "current Ids: " << last;
 
         {
             TaskDBLock lock;
@@ -165,7 +168,7 @@ void ScanTaskDBPrivate::onDBChanged()
                     qint32 fileCountFinished = sqlite3_column_int (stmt, 7);
                     qint32 status = sqlite3_column_int (stmt, 8);
 
-//                    qDebug() << "id: " << id;
+                    qDebug() << "query id: " << id << " name: " << name;
 
                     if (nullptr == scanDir || scanDir.isEmpty()) {
                         scanDir = "/";
@@ -208,13 +211,20 @@ void ScanTaskDBPrivate::onDBChanged()
 
         if (!last.isEmpty()) {
             auto delLs = last.toList();
+            qDebug() << "delete Ids: " << delLs;
             Q_EMIT q->delTasks (delLs);
+            q->delItemByIds (delLs);
         }
 
         if (!addedTasks.isEmpty()) {
             auto addLs = addedTasks.toList();
             Q_EMIT q->addTasks (addLs);
         }
+
+        if (lastC != getCurrentTaskIds().toSet().size()) {
+            Q_EMIT q->dbCountChanged (q->rowCount());
+        }
+
         setRunning (false);
     }
 
@@ -279,7 +289,7 @@ bool ScanTaskDBPrivate::getDBFileIsChanged()
     mDBChangedLocker.lock();
     bool c = mIsDBChanged;
     if (!c) ++mTimes; else mTimes = 0;
-    if (mTimes >= 20 * 5) {
+    if (mTimes >= 10) {
         // 数据库长时间未更新(5分钟)，还是要做一次更新的
         c = true;
         mTimes = 0;
@@ -510,6 +520,21 @@ QList<std::shared_ptr<ScannerTaskItem>> ScanTaskDB::getSelectedItems()
     d->mLocker.unlock();
 
     return ls;
+}
+
+void ScanTaskDB::delItemByIds(const QStringList &ids)
+{
+    Q_D(ScanTaskDB);
+
+    for (auto& id : ids) {
+        d->mLocker.lock();
+        if (d->mDataIdx.contains (id)) {
+            auto ii = d->mDataIdx[id];
+            d->mData.removeOne (ii);
+            d->mDataIdx.remove (id);
+        }
+        d->mLocker.unlock();
+    }
 }
 
 #include "scan-task-db.moc"
