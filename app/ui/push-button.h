@@ -9,13 +9,14 @@ class PushButton : public QWidget
 {
     Q_OBJECT
 public:
-    enum Type { Type1, Type2, Type3};
+    enum Type { Type1, Type2, Type3, Type4 };
 public:
     explicit PushButton(QWidget *parent = nullptr, Type t=Type1);
 
     void setText (QString text);
     bool isEnable ();
     void setEnable();
+    void setType(Type type);
     
 public Q_SLOTS:
     void setEnable(bool);
@@ -41,6 +42,9 @@ private:
     QString             mText;
 
     Type                mType;
+
+    // private
+    QWidget*            mPLine = nullptr;
 };
 
 #endif // PUSHBUTTON_H

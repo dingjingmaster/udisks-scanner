@@ -7,8 +7,10 @@
 #include "log.h"
 #include "main-header.h"
 #include "message-box.h"
-#include "main-widget-1.h"
-#include "main-widget-2.h"
+#include "push-button.h"
+#include "main-widget-11.h"
+#include "main-widget-12.h"
+#include "main-widget-21.h"
 #include "singleton-app-gui.h"
 
 #include <QScreen>
@@ -28,9 +30,21 @@ MainWindow::MainWindow (QWidget *parent)
     mDirection = NONE;
 
     mMainLayout = new QVBoxLayout;
-    auto layout2 = new QVBoxLayout;
+    auto llB = new QHBoxLayout;                     // nav btn
+    auto layout2 = new QVBoxLayout;                 // 敏感数据检查
+    auto layout3 = new QVBoxLayout;                 // 脆弱性检查
     layout2->setContentsMargins(2, 2, 2, 2);
     mMainLayout->setContentsMargins (0, 0, 0, 0);
+
+    auto minGan = new PushButton;
+    auto cuiRuo = new PushButton;
+    minGan->setText ("敏感数据检查");
+    cuiRuo->setText ("脆弱性检查");
+    minGan->setEnable(true);
+    cuiRuo->setEnable(true);
+
+    llB->addWidget (minGan);
+    llB->addWidget (cuiRuo);
 
     mHeader = new MainHeader;
     mHeader->setTitle ("重要数据安全检查");
@@ -39,15 +53,21 @@ MainWindow::MainWindow (QWidget *parent)
     mHeader->showMin();
     mHeader->showMax();
 
-    mWindow1 = new MainWidget1;
-    mWindow2 = new MainWidget2;
+    mMainLayout->addItem (llB);
 
-    layout2->addWidget (mWindow1);
-    layout2->addWidget (mWindow2);
+    mWindow11 = new MainWidget11;
+    mWindow12 = new MainWidget12;
 
-    mWindow2->hide();
+    layout2->addWidget (mWindow11);
+    layout2->addWidget (mWindow12);
+
+    mWindow12->hide();
+
+    mWindow21 = new MainWidget21;
+    layout3->addWidget (mWindow21);
 
     mMainLayout->addItem (layout2);
+    mMainLayout->addItem (layout3);
 
     setLayout (mMainLayout);
 
@@ -72,15 +92,35 @@ MainWindow::MainWindow (QWidget *parent)
 
     });
 
-    connect (mWindow1, &MainWidget1::taskDetail, this, [=] (const QString& id) {
-        mWindow1->hide();
-        mWindow2->showResult(id);
+    connect (mWindow11, &MainWidget11::taskDetail, this, [=] (const QString& id) {
+        mWindow11->hide();
+        mWindow12->showResult(id);
     });
 
-    connect (mWindow2, &MainWidget2::showTaskList, this, [=] () {
-        mWindow2->hideResult();
-        mWindow1->show();
+    connect (mWindow12, &MainWidget12::showTaskList, this, [=] () {
+        mWindow12->hideResult();
+        mWindow11->show();
     });
+
+    connect (minGan, &PushButton::clicked, this, [=] () {
+        mWindow21->hide();
+        if (mWindow11->isHidden()) {
+            Q_EMIT mWindow12->showTaskList();
+        }
+        minGan->setType (PushButton::Type1);
+        cuiRuo->setType (PushButton::Type4);
+    });
+
+    connect (cuiRuo, &PushButton::clicked, this, [=] () {
+        mWindow11->hide();
+        mWindow12->hideResult();
+        mWindow21->show();
+
+        minGan->setType (PushButton::Type4);
+        cuiRuo->setType (PushButton::Type1);
+    });
+
+    Q_EMIT minGan->clicked ();
 }
 
 void MainWindow::mouseMoveEvent(QMouseEvent* e)

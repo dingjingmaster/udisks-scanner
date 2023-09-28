@@ -2,7 +2,7 @@
 // Created by dingjing on 23-6-13.
 //
 
-#include "main-widget-1.h"
+#include "main-widget-11.h"
 
 #include <QLabel>
 #include <QComboBox>
@@ -25,7 +25,7 @@
 #include "model/scanner-task-model.h"
 
 
-MainWidget1::MainWidget1(QWidget *parent)
+MainWidget11::MainWidget11(QWidget *parent)
     : QWidget(parent)
 {
     setMouseTracking (true);
@@ -256,7 +256,7 @@ MainWidget1::MainWidget1(QWidget *parent)
     });
 #endif
 
-    connect (mView, &ScannerView::taskDetail, this, &MainWidget1::taskDetail);
+    connect (mView, &ScannerView::taskDetail, this, &MainWidget11::taskDetail);
 
     connect (header, &HeaderView::checkBoxClicked, this, [=] (bool c) -> void {
         if (!mModel)return;
@@ -307,7 +307,7 @@ MainWidget1::MainWidget1(QWidget *parent)
         }
     });
 
-    connect (this, &MainWidget1::checkedItem, this, [=] (bool b) -> void {
+    connect (this, &MainWidget11::checkedItem, this, [=] (bool b) -> void {
         if (b) {
             btn21->setEnable (true);
             btn22->setEnable (true);
@@ -325,7 +325,7 @@ MainWidget1::MainWidget1(QWidget *parent)
 #endif
 }
 
-void MainWidget1::resizeEvent(QResizeEvent *event)
+void MainWidget11::resizeEvent(QResizeEvent *event)
 {
     if (!mView || !mView->horizontalHeader()) return;
 

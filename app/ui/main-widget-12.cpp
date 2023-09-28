@@ -2,7 +2,7 @@
 // Created by dingjing on 23-6-13.
 //
 
-#include "main-widget-2.h"
+#include "main-widget-12.h"
 
 #include <QLabel>
 #include <QHeaderView>
@@ -18,7 +18,7 @@
 #include "model/scanner-task-item.h"
 
 
-MainWidget2::MainWidget2(QWidget *parent)
+MainWidget12::MainWidget12(QWidget *parent)
     : QWidget (parent)
 {
     setMouseTracking (true);
@@ -126,14 +126,14 @@ MainWidget2::MainWidget2(QWidget *parent)
     mView->setSelectionMode (QAbstractItemView::SingleSelection);
 //    mView->horizontalHeader()->setSelectionMode (QHeaderView::SingleSelection);
 
-    connect (btn1, &PushButton::clicked, this, &MainWidget2::showTaskList);
+    connect (btn1, &PushButton::clicked, this, &MainWidget12::showTaskList);
 
 #if 1
     mModel->test();
 #endif
 }
 
-void MainWidget2::resizeEvent(QResizeEvent *event)
+void MainWidget12::resizeEvent(QResizeEvent *event)
 {
     if (!mView || !mView->horizontalHeader()) return;
 
@@ -153,7 +153,7 @@ void MainWidget2::resizeEvent(QResizeEvent *event)
     QWidget::resizeEvent (event);
 }
 
-void MainWidget2::showResult(const QString &taskID)
+void MainWidget12::showResult(const QString &taskID)
 {
     show ();
     mTaskID = taskID;
@@ -186,7 +186,7 @@ void MainWidget2::showResult(const QString &taskID)
     ScanResultDB::getInstance()->onLoad();
 }
 
-void MainWidget2::hideResult()
+void MainWidget12::hideResult()
 {
     mTaskID = "";
     hide();

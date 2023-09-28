@@ -2,8 +2,8 @@
 // Created by dingjing on 23-6-13.
 //
 
-#ifndef UDISKS_SCANNER_MAIN_WIDGET_1_H
-#define UDISKS_SCANNER_MAIN_WIDGET_1_H
+#ifndef UDISKS_SCANNER_MAIN_WIDGET_11_H
+#define UDISKS_SCANNER_MAIN_WIDGET_11_H
 #include <QWidget>
 
 class QComboBox;
@@ -11,11 +11,11 @@ class ScannerView;
 class QVBoxLayout;
 class QResizeEvent;
 class ScannerTaskModel;
-class MainWidget1 : public QWidget
+class MainWidget11 : public QWidget
 {
     Q_OBJECT
 public:
-    explicit MainWidget1(QWidget* parent=nullptr);
+    explicit MainWidget11(QWidget* parent=nullptr);
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
@@ -42,4 +42,4 @@ private:
 };
 
 
-#endif //UDISKS_SCANNER_MAIN_WIDGET_1_H
+#endif //UDISKS_SCANNER_MAIN_WIDGET_11_H

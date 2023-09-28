@@ -14,11 +14,17 @@ file(GLOB UI_SRC
         ${CMAKE_SOURCE_DIR}/app/ui/message-box.h
         ${CMAKE_SOURCE_DIR}/app/ui/message-box.cpp
 
-        ${CMAKE_SOURCE_DIR}/app/ui/main-widget-1.h
-        ${CMAKE_SOURCE_DIR}/app/ui/main-widget-1.cpp
+        ${CMAKE_SOURCE_DIR}/app/ui/main-widget-11.h
+        ${CMAKE_SOURCE_DIR}/app/ui/main-widget-11.cpp
 
-        ${CMAKE_SOURCE_DIR}/app/ui/main-widget-2.h
-        ${CMAKE_SOURCE_DIR}/app/ui/main-widget-2.cpp
+        ${CMAKE_SOURCE_DIR}/app/ui/main-widget-12.h
+        ${CMAKE_SOURCE_DIR}/app/ui/main-widget-12.cpp
+
+        ${CMAKE_SOURCE_DIR}/app/ui/main-widget-21.h
+        ${CMAKE_SOURCE_DIR}/app/ui/main-widget-21.cpp
+
+        ${CMAKE_SOURCE_DIR}/app/ui/software-ui.h
+        ${CMAKE_SOURCE_DIR}/app/ui/software-ui.cpp
 
         ${CMAKE_SOURCE_DIR}/app/ui/push-button.h
         ${CMAKE_SOURCE_DIR}/app/ui/push-button.cpp

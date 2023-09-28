@@ -7,8 +7,9 @@
 #include <QWidget>
 
 class MainHeader;
-class MainWidget1;
-class MainWidget2;
+class MainWidget11;
+class MainWidget12;
+class MainWidget21;
 class MainWindow : public QWidget
 {
     Q_OBJECT
@@ -34,8 +35,9 @@ private:
     QLayout*                        mMainLayout = nullptr;
 
     MainHeader*                     mHeader = nullptr;
-    MainWidget1*                    mWindow1 = nullptr;
-    MainWidget2*                    mWindow2 = nullptr;
+    MainWidget11*                   mWindow11 = nullptr;
+    MainWidget12*                   mWindow12 = nullptr;
+    MainWidget21*                   mWindow21 = nullptr;
 
     QPoint                          mOffset;
     Direction                       mDirection;

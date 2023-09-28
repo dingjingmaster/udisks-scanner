@@ -7,10 +7,11 @@
 PushButton::PushButton(QWidget *parent, Type type)
     : QWidget{parent}, mType(type)
 {
+    setFixedHeight (40);
     setMouseTracking(true);
     setFixedWidth(mMaxWidth);
-    setCursor(Qt::PointingHandCursor);
     setContentsMargins(0, 0, 0, 0);
+    setCursor(Qt::PointingHandCursor);
 
     if (mType == Type1) setCursor(Qt::ArrowCursor);
 
@@ -21,34 +22,20 @@ PushButton::PushButton(QWidget *parent, Type type)
     mLabel = new QLabel;
     mLabel->setMargin(mLabelMargin);
     mLabel->setFixedWidth(mMaxWidth);
-    mLabel->setStyleSheet("font: blod;");
+    mLabel->setAutoFillBackground (true);
     mLabel->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
     mLayout->addWidget(mLabel);
 
-    switch (mType) {
-        case Type1: {
-            auto* widget = new QWidget;
-            widget->setFixedHeight(3);
-            mLabel->setStyleSheet("color: rgb(0, 0, 0);");
-            widget->setStyleSheet("background-color:rgb(204, 48, 51);");
-            mLayout->addWidget(widget);
-            break;
-        }
-        case Type2: {
-            mLabel->setStyleSheet("font: blod; color: rgb(255, 255, 255); border-radius: 6px;");
-            setEnable();
-            connect (this, &PushButton::enable, this, QOverload<bool>::of(&PushButton::setEnable));
-            break;
-        }
-        case Type3: {
-            mLabel->setStyleSheet("font: blod; color: rgb(204, 48, 51); border-radius: 6px;");
-            setEnable();
-            connect (this, &PushButton::enable, this, QOverload<bool>::of(&PushButton::setEnable));
-            break;
-        }
-    }
+    // private
+    mPLine = new QWidget;
+    mPLine->setFixedHeight(3);
+    mPLine->setStyleSheet("background-color:rgb(204, 48, 51);");
+    mLayout->addWidget(mPLine);
 
     setLayout(mLayout);
+
+    setType (mType);
+    connect (this, &PushButton::enable, this, QOverload<bool>::of(&PushButton::setEnable));
 }
 
 void PushButton::setText(QString text)
@@ -78,13 +65,18 @@ bool PushButton::isEnable()
 void PushButton::setEnable()
 {
     if (mType == Type1) return;
-    if (mIsEnable) {
-        setCursor(Qt::PointingHandCursor);
-        mLabel->setStyleSheet("background-color:#cc3033; font: blod; color: rgb(255, 255, 255); border-radius: 6px;");
-    } else {
-        setCursor(Qt::ArrowCursor);
-        mLabel->setStyleSheet("background-color:#696969; font: blod; color: rgb(255, 255, 255); border-radius: 6px;");
-    } 
+    else if ((mType = Type2) || (mType == Type3)) {
+        if (mIsEnable) {
+            setCursor(Qt::PointingHandCursor);
+            mLabel->setStyleSheet("background-color:#cc3033; font: blod; color: rgb(255, 255, 255); border-radius: 6px;");
+        } else {
+            setCursor(Qt::ArrowCursor);
+            mLabel->setStyleSheet("background-color:#696969; font: blod; color: rgb(255, 255, 255); border-radius: 6px;");
+        }
+    }
+    else if (mType == Type4) {
+        setCursor ((mIsEnable ? Qt::PointingHandCursor : Qt::ArrowCursor));
+    }
 }
 
 void PushButton::setEnable(bool e)
@@ -109,5 +101,35 @@ void PushButton::mouseDoubleClickEvent(QMouseEvent *event)
     
     if (mIsEnable) {
         doubleClicked();
+    }
+}
+
+void PushButton::setType(PushButton::Type type)
+{
+    mType = type;
+    switch (mType) {
+        case Type1: {
+            mPLine->show();
+            mLabel->setStyleSheet("color: rgb(0, 0, 0);");
+            break;
+        }
+        case Type2: {
+            mPLine->hide();
+            mLabel->setStyleSheet("font: blod; color: rgb(255, 255, 255); border-radius: 6px;");
+            setEnable();
+            break;
+        }
+        case Type3: {
+            mPLine->hide();
+            mLabel->setStyleSheet("font: blod; color: rgb(204, 48, 51); border-radius: 6px;");
+            setEnable();
+            break;
+        }
+        case Type4: {
+            mPLine->hide();
+            setEnable();
+            mLabel->setStyleSheet("border: 1px solid; border-color: #a8a8a8a8; border-radius: 6px;");
+            break;
+        }
     }
 }
