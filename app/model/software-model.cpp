@@ -13,6 +13,7 @@
 #include <glib.h>
 #include <stdio.h>
 #include <gio/gio.h>
+#include <sys/wait.h>
 #include <gio/gdesktopappinfo.h>
 
 #include "software-item.h"
@@ -158,8 +159,14 @@ void SoftwareModel::loadApps()
             auto cmd = g_app_info_get_commandline (G_APP_INFO(app->data));
             g_autoptr (GDesktopAppInfo) desktopApp = g_desktop_app_info_new (appID);
             auto category = g_desktop_app_info_get_categories (desktopApp);
-            auto item = new SoftwareItem(name, getAppVersionByCommand(cmd), category, getAppInstallTimeByCommand (cmd));
-            Q_EMIT addItem (item);
+            auto version = getAppVersionByCommand (cmd);
+            auto item = new SoftwareItem(name, version, category, getAppInstallTimeByCommand (cmd));
+            if (!version.isEmpty() && (name && strlen (name) > 0)) {
+                Q_EMIT addItem (item);
+            }
+            else {
+                delete item;
+            }
         }
         g_object_unref (app->data);
     }
@@ -185,7 +192,9 @@ inline QString getPkgBin()
 
 inline QString getCommandFullPath(const QString& cmd)
 {
-    if (cmd.startsWith ("/")) return cmd;
+    if (cmd.startsWith ("/") || cmd.startsWith ("\\\"/"))  {
+        return cmd.split (" ").takeFirst().split ("%").takeFirst().trimmed();
+    }
 
     auto cmdT = cmd.trimmed();
     if (cmd.split (" ").count() > 1) {
@@ -208,16 +217,35 @@ inline QString getCommandFullPath(const QString& cmd)
 inline QString executeCommandGetResult(const QString& cmd)
 {
     g_return_val_if_fail((cmd != nullptr) && !cmd.isEmpty(), "");
-    FILE* fr = popen (cmd.toUtf8().constData(), "r");
+    qDebug() << "cmd: " << cmd;
+
+#if 0
+    QProcess pro;
+
+    pro.start (cmd);
+    pro.waitForFinished (-1);
+    auto outStr = pro.readAllStandardOutput();
+    qDebug() << "cmd res: " << outStr;
+    return outStr;
+#else
+//    g_autofree char* outStr = nullptr;
+//    g_autofree char* errStr = nullptr;
+//    g_autoptr (GError) error = nullptr;
+//    g_spawn_command_line_sync (cmd.toUtf8().constData(), &outStr, &errStr, nullptr, &error);
+//    qDebug() << "cmd res: " << (outStr ? outStr : "<null>") << " -- " << (errStr ? errStr : "<null>") << (error ? error->message : "<null>");
+//    return (outStr ? outStr : "");
+    auto fr = popen (cmd.toUtf8().constData(), "r");
     g_return_val_if_fail(fr, "");
-
-    char buf[1024] = {0};
-
-    fread (buf, sizeof(char), sizeof(buf) / sizeof(char), fr);
-
+    QString outBuf;
+    do {
+        char buf[32] = {0};
+        fgets (buf, sizeof(buf)/sizeof(buf[0]), fr);
+        outBuf.append (buf);
+    } while (!feof (fr) && !ferror (fr));
     if (fr) pclose (fr);
 
-    return buf;
+    return outBuf;
+#endif
 }
 
 static QString getAppVersionByCommand(const QString& cmd)
@@ -226,15 +254,13 @@ static QString getAppVersionByCommand(const QString& cmd)
     qDebug() << "toos: " << tool;
     if (nullptr == tool) return "";
 
+    auto cmdT = getCommandFullPath (cmd);
+    if (nullptr == cmdT) return "";
+
     if (tool.endsWith ("dpkg")) {
-        auto cmdT = getCommandFullPath (cmd);
-        if (nullptr == cmdT) return "";
         return executeCommandGetResult (QString("dpkg -s $(dpkg -S %1 | awk -F':' '{print $1}' | grep 'Version' | awk -F':' '{print $2}')").arg(cmdT)).trimmed();
     }
     else if (tool.endsWith ("pacman")) {
-        qDebug() << cmd;
-        auto cmdT = getCommandFullPath (cmd);
-        if (nullptr == cmdT) return "";
         return executeCommandGetResult (QString("pacman -Qo %1 | awk '{print $6}'").arg(cmdT)).trimmed();
     }
 
@@ -243,5 +269,25 @@ static QString getAppVersionByCommand(const QString& cmd)
 
 static qint64 getAppInstallTimeByCommand(const QString& cmd)
 {
+    return 0;
+    static QString tool = getPkgBin();
+    qDebug() << "toos: " << tool;
+    if (nullptr == tool) return 0;
+
+    auto cmdT = getCommandFullPath (cmd);
+    if (nullptr == cmdT) return 0;
+
+    if (tool.endsWith ("dpkg")) {
+        return 0; //executeCommandGetResult (QString("dpkg -s $(dpkg -S %1 | awk -F':' '{print $1}' | grep 'Version' | awk -F':' '{print $2}')").arg(cmdT)).trimmed();
+    }
+    else if (tool.endsWith ("pacman")) {
+        //auto installTimeCMD = QString("pacman -Qo %1 | awk '{print $5}' | pacman -Qi | grep 'Install Date' | head -1 | awk -F':' '{print $2}' | date '+%%s'").arg(cmdT);
+        auto installTimeCMD = QString(R"(bash -c 'pacman -Qi $(pacman -Qo %1 | awk "\'"{print $5}"\'") | grep "\'"Install Date"\'" | awk -F"\'":"\'" "\'"{print $2}"\'" | date "\'"+%%s"\'"')").arg(cmdT);
+        auto ret = executeCommandGetResult (installTimeCMD).trimmed();
+        if ((nullptr != ret) && !ret.isEmpty()) {
+            return ret.toInt ();
+        }
+    }
+
     return 0;
 }

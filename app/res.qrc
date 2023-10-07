@@ -6,5 +6,7 @@
         <file>data/max.png</file>
         <file>data/min.png</file>
         <file>data/close.png</file>
+        <file>data/up.png</file>
+        <file>data/down.png</file>
     </qresource>
 </RCC>

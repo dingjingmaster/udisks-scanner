@@ -43,8 +43,11 @@ MainWindow::MainWindow (QWidget *parent)
     minGan->setEnable(true);
     cuiRuo->setEnable(true);
 
+    llB->addSpacing (30);
     llB->addWidget (minGan);
+    llB->addSpacing (60);
     llB->addWidget (cuiRuo);
+    llB->addStretch ();
 
     mHeader = new MainHeader;
     mHeader->setTitle ("重要数据安全检查");

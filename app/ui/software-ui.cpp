@@ -7,22 +7,28 @@
 #include <QLabel>
 #include <QDebug>
 #include <QScrollBar>
+#include <QPushButton>
 #include <QHeaderView>
 
 #include "../view/software-view.h"
 #include "../model/software-item.h"
 #include "../model/software-model.h"
 
-#define SOFTWARE_TITLE              "软件检查--------------------------------------------%1项"
+#define SOFTWARE_TITLE              "软件检查 ----------------------------------------------------------------------- %1项"
 
 SoftwareUI::SoftwareUI(QWidget *parent)
-    : QWidget (parent)
+    : QWidget (parent), mIsChecked(false)
 {
     mMainLayout = new QVBoxLayout;
     auto titleLayout = new QHBoxLayout;
 
     mTitle = new QLabel;
     titleLayout->addWidget (mTitle);
+
+    mShowDetail = new QPushButton;
+    mShowDetail->setFlat (true);
+    titleLayout->addWidget (mShowDetail);
+    titleLayout->addStretch ();
 
     mView = new SoftwareView;
     mModel = new SoftwareModel;
@@ -36,6 +42,17 @@ SoftwareUI::SoftwareUI(QWidget *parent)
 
     connect (this, &SoftwareUI::updateItemCount, this, [=] () {
         mTitle->setText (QString(SOFTWARE_TITLE).arg (mModel->rowCount ()));
+    });
+
+    connect (mShowDetail, &QPushButton::clicked, this, [=] (bool b) {
+        mIsChecked = !mIsChecked;
+        mShowDetail->toggled (mIsChecked);
+    });
+    connect (mShowDetail, &QPushButton::toggled, this, [=] (bool checked) {
+        QPixmap pix((!checked ? ":/data/down.png" : ":/data/up.png"));
+        mShowDetail->setIcon (pix);
+        if (checked) mView->show();
+        else mView->hide();
     });
 
     connect (mModel, &SoftwareModel::updateView, this, [=] () -> void {
@@ -67,4 +84,27 @@ SoftwareUI::SoftwareUI(QWidget *parent)
     mView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     mView->setSelectionMode (QAbstractItemView::SingleSelection);
     Q_EMIT updateItemCount();
+    Q_EMIT mShowDetail->toggled(mIsChecked);
+}
+
+void SoftwareUI::resizeEvent(QResizeEvent *event)
+{
+    if (!mView || !mView->horizontalHeader()) return;
+
+    mView->horizontalHeader()->resizeSection (0, mItemIdxWidth);
+    mView->horizontalHeader()->resizeSection (1, mItemCategoryWidth);
+    mView->horizontalHeader()->resizeSection (4, mItemInstallTimeWidth);
+    mView->horizontalHeader()->resizeSection (5, mItemInstallPathWidth);
+
+    int w = mView->width()      \
+        - mItemIdxWidth         \
+        - mItemCategoryWidth    \
+        - mItemInstallTimeWidth \
+        - mItemInstallPathWidth \
+        - contentsMargins().left()  \
+        - contentsMargins().right() \
+        - 20;
+
+    mView->horizontalHeader()->resizeSection (2, (int) (w * 0.6));
+    mView->horizontalHeader()->resizeSection (3, (int) (w * 0.4));
 }

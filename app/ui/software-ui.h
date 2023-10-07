@@ -9,6 +9,7 @@
 
 
 class QLabel;
+class QPushButton;
 class SoftwareView;
 class SoftwareModel;
 class SoftwareUI : public QWidget
@@ -21,11 +22,22 @@ Q_SIGNALS:
     void load();
     void updateItemCount();
 
+protected:
+    void resizeEvent(QResizeEvent *event) override;
+
 private:
+    const int                   mItemIdxWidth = 60;
+    const int                   mItemCategoryWidth = 120;
+    const int                   mItemInstallTimeWidth = 180;
+    const int                   mItemInstallPathWidth = 100;
+
     SoftwareView*               mView;
     SoftwareModel*              mModel;
     QLabel*                     mTitle;
     QVBoxLayout*                mMainLayout;
+
+    bool                        mIsChecked;
+    QPushButton*                mShowDetail;
 };
 
 

@@ -26,6 +26,9 @@ file(GLOB UI_SRC
         ${CMAKE_SOURCE_DIR}/app/ui/software-ui.h
         ${CMAKE_SOURCE_DIR}/app/ui/software-ui.cpp
 
+        ${CMAKE_SOURCE_DIR}/app/ui/hardware-ui.h
+        ${CMAKE_SOURCE_DIR}/app/ui/hardware-ui.cpp
+
         ${CMAKE_SOURCE_DIR}/app/ui/push-button.h
         ${CMAKE_SOURCE_DIR}/app/ui/push-button.cpp
 

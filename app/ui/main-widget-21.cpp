@@ -14,6 +14,7 @@
 
 #include "push-button.h"
 #include "software-ui.h"
+#include "hardware-ui.h"
 #include "../utils/tools.h"
 
 
@@ -95,6 +96,9 @@ MainWidget21::MainWidget21(QWidget *parent)
     result->setTextFormat (Qt::RichText);
     mainLayout->addSpacing (12);
     mainLayout->addWidget (result);
+
+    mHardwareUI = new HardwareUI;
+    scanUILayout->addWidget (mHardwareUI);
 
     mSoftwareUI = new SoftwareUI;
     scanUILayout->addWidget (mSoftwareUI);

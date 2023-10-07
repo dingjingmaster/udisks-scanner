@@ -12,6 +12,7 @@ class QLabel;
 
 class PushButton;
 class SoftwareUI;
+class HardwareUI;
 class MainWidget21 : public QWidget
 {
     Q_OBJECT
@@ -31,6 +32,7 @@ private:
     Status                  mStatus;
     QLabel*                 mBaseInfoLabel = nullptr;
     SoftwareUI*             mSoftwareUI = nullptr;
+    HardwareUI*             mHardwareUI = nullptr;
 
     PushButton*             mDelBtn;
     PushButton*             mExpBtn;

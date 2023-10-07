@@ -42,5 +42,10 @@ QString SoftwareItem::getInstallPath() const
 
 QString SoftwareItem::getInstallTime() const
 {
-    return QDateTime::fromSecsSinceEpoch (mInstallTime).toString ("yyyy-MM-dd hh:mm:ss");
+    if (mInstallTime > 0) {
+        return QDateTime::fromSecsSinceEpoch (mInstallTime).toString ("yyyy-MM-dd hh:mm:ss");
+    }
+    else {
+        return "未知";
+    }
 }
