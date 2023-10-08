@@ -16,10 +16,15 @@ class SoftwareUI : public QWidget
 {
     Q_OBJECT
 public:
+    int getHeight();
     explicit SoftwareUI(QWidget* parent=nullptr);
 
 Q_SIGNALS:
-    void load();
+    void stop();
+    void pause();
+    void start();
+
+    void resizeUI();
     void updateItemCount();
 
 protected:

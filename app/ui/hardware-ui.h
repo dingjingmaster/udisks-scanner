@@ -16,13 +16,18 @@ class HardwareUI : public QWidget
     Q_OBJECT
 public:
     explicit HardwareUI(QWidget* parent=nullptr);
+    int getHeight();
 
 Q_SIGNALS:
-    void load();
+    void stop();
+    void pause();
+    void start();
+
+    void resizeUI();
     void updateItemCount(int c=0);
 
 protected:
-    void resizeEvent(QResizeEvent* event) override;
+//    void resizeEvent(QResizeEvent* event) override;
 
 private:
     QLabel*                     mDate;

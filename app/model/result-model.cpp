@@ -161,7 +161,7 @@ Qt::ItemFlags ResultModel::flags(const QModelIndex &index) const
 
 bool ResultModel::insertRows(int row, int count, const QModelIndex &parent)
 {
-    QAbstractTableModel::insertRows(row, count, parent);
+    return QAbstractTableModel::insertRows(row, count, parent);
 }
 
 bool ResultModel::removeRows(int row, int count, const QModelIndex &parent)

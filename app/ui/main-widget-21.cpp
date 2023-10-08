@@ -5,8 +5,11 @@
 #include "main-widget-21.h"
 
 #include <QLabel>
+#include <QDebug>
 #include <QDateTime>
+#include <QScrollArea>
 #include <QPushButton>
+#include <QResizeEvent>
 #include <QProgressBar>
 #include <QApplication>
 
@@ -97,13 +100,21 @@ MainWidget21::MainWidget21(QWidget *parent)
     mainLayout->addSpacing (12);
     mainLayout->addWidget (result);
 
+    mScrollWidget = new QWidget;
+    mScrollArea = new QScrollArea;
+//    mScrollWidget->setSizePolicy (QSizePolicy::Preferred, QSizePolicy::Preferred);
+
     mHardwareUI = new HardwareUI;
     scanUILayout->addWidget (mHardwareUI);
 
     mSoftwareUI = new SoftwareUI;
     scanUILayout->addWidget (mSoftwareUI);
+    scanUILayout->addStretch ();
 
-    mainLayout->addLayout (scanUILayout);
+    mScrollWidget->setLayout (scanUILayout);
+    mScrollArea->setWidget (mScrollWidget);
+
+    mainLayout->addWidget(mScrollArea);
 
     mainLayout->addStretch ();
     setLayout (mainLayout);
@@ -125,8 +136,21 @@ MainWidget21::MainWidget21(QWidget *parent)
         progress->setValue (qRound(pec * 100));
     });
 
+    connect (mHardwareUI, &HardwareUI::resizeUI, this, &MainWidget21::resizeResultUI);
+    connect (mSoftwareUI, &SoftwareUI::resizeUI, this, &MainWidget21::resizeResultUI);
+
     connect (mChkBtn, &PushButton::clicked, this, [&] () {
         changeStatus (Running);
+    });
+    connect (mStpBtn, &PushButton::clicked, this, [&] () {
+        changeStatus (Stop);
+    });
+
+    connect (mPauBtn, &PushButton::clicked, this, [&] () {
+        changeStatus (Pause);
+    });
+    connect (this, &MainWidget21::allFinished, this, [&] () {
+        changeStatus (Finished);
     });
 
     // init
@@ -158,9 +182,16 @@ void MainWidget21::updateBaseInfo(qint64 startTime, qint64 stopTime)
 
 void MainWidget21::changeStatus(MainWidget21::Status status)
 {
-    if (mStatus == status) return;
+    if ((mStatus == status) && (mStatus != Pause)) return;
 
-    mStatus = status;
+    if ((mStatus == Pause) && (status == Pause)) {
+        mStatus = Running;
+        mPauBtn->setText ("暂停");
+    }
+    else {
+        mStatus = status;
+        if (mStatus == Pause) { mPauBtn->setText ("开始"); }
+    }
 
     switch (mStatus) {
         case Stop: {
@@ -169,6 +200,8 @@ void MainWidget21::changeStatus(MainWidget21::Status status)
             mPauBtn->setEnable (false);
             mStpBtn->setEnable (false);
             mChkBtn->setEnable (true);
+            mSoftwareUI->stop();
+            mHardwareUI->stop();
             break;
         }
         case Running: {
@@ -177,7 +210,8 @@ void MainWidget21::changeStatus(MainWidget21::Status status)
             mPauBtn->setEnable (true);
             mStpBtn->setEnable (true);
             mChkBtn->setEnable (false);
-            mSoftwareUI->load();
+//            mSoftwareUI->start();
+            mHardwareUI->start();
             break;
         }
         case Pause: {
@@ -186,6 +220,8 @@ void MainWidget21::changeStatus(MainWidget21::Status status)
             mPauBtn->setEnable (true);
             mStpBtn->setEnable (false);
             mChkBtn->setEnable (false);
+            mSoftwareUI->pause();
+            mHardwareUI->pause();
             break;
         }
         case Finished: {
@@ -205,4 +241,31 @@ void MainWidget21::changeStatus(MainWidget21::Status status)
 void MainWidget21::run()
 {
 
+}
+
+void MainWidget21::resizeEvent(QResizeEvent* ev)
+{
+    resizeResultUI();
+    QWidget::resizeEvent (ev);
+}
+
+void MainWidget21::resizeResultUI()
+{
+    auto diffW = 20 + contentsMargins().left() + contentsMargins().right()
+                 + mScrollWidget->contentsMargins().left() + mScrollWidget->contentsMargins().right();
+    auto w = size().width() - diffW;
+    mScrollWidget->setFixedWidth(w - 20);
+    mScrollArea->setFixedWidth(w);
+//    qDebug() << "w: " << w << " -- " << diffW;
+
+    auto diffH = 240;
+    auto h = size().height() - diffH;
+    mScrollArea->setMinimumHeight(h + 10);
+//    qDebug() << "h: " << h << " -- " << diffH;
+
+    auto hContent = mSoftwareUI->getHeight() + mHardwareUI->getHeight();
+    qDebug() << "c h 1: " << hContent;
+    hContent = ((hContent < h) ? h : hContent);
+    mScrollWidget->setMinimumHeight(hContent);
+    qDebug() << "c h 2: " << hContent;
 }

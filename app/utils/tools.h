@@ -31,8 +31,17 @@ private:
     QMutex      mLocker;
 };
 
+QString getBIOS ();
+QString getOSName ();
+QString getOSType ();
+QString getVendor ();
 QString getLocalIP ();
+QString getCpuInfo ();
+QString getMemInfo ();
+QString getSwapInfo ();
 QString getLocalMAC ();
+QString getDesktopInfo ();
 QString getLocalPCName ();
+QString getHostPropertyByDbus (const QString& propertyName);
 
 #endif //UDISKS_SCANNER_TOOLS_H

@@ -9,6 +9,7 @@
 #include <QScrollBar>
 #include <QPushButton>
 #include <QHeaderView>
+#include <QApplication>
 
 #include "../view/software-view.h"
 #include "../model/software-item.h"
@@ -24,6 +25,12 @@ SoftwareUI::SoftwareUI(QWidget *parent)
 
     mTitle = new QLabel;
     titleLayout->addWidget (mTitle);
+
+    auto f = qApp->font();
+    f.setPointSizeF (f.pointSizeF() - 2);
+    QFontMetrics fm(f);
+    static const int pSize = fm.width (SOFTWARE_TITLE);
+    mTitle->setMinimumWidth (pSize + 80);
 
     mShowDetail = new QPushButton;
     mShowDetail->setFlat (true);
@@ -53,6 +60,7 @@ SoftwareUI::SoftwareUI(QWidget *parent)
         mShowDetail->setIcon (pix);
         if (checked) mView->show();
         else mView->hide();
+        Q_EMIT resizeUI();
     });
 
     connect (mModel, &SoftwareModel::updateView, this, [=] () -> void {
@@ -78,7 +86,8 @@ SoftwareUI::SoftwareUI(QWidget *parent)
         Q_EMIT updateItemCount();
     });
 
-    connect (this, &SoftwareUI::load, mModel, &SoftwareModel::loadApps);
+    connect (this, &SoftwareUI::start, mModel, &SoftwareModel::loadApps);
+    //
 
     mView->horizontalHeader()->setSectionsClickable (false);
     mView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -107,4 +116,15 @@ void SoftwareUI::resizeEvent(QResizeEvent *event)
 
     mView->horizontalHeader()->resizeSection (2, (int) (w * 0.6));
     mView->horizontalHeader()->resizeSection (3, (int) (w * 0.4));
+}
+
+int SoftwareUI::getHeight()
+{
+//    return this->height();
+    if (mIsChecked) {
+        return mTitle->height() + mView->height();
+    }
+    else {
+        return mTitle->height();
+    }
 }

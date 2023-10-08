@@ -13,6 +13,7 @@ class QLabel;
 class PushButton;
 class SoftwareUI;
 class HardwareUI;
+class QScrollArea;
 class MainWidget21 : public QWidget
 {
     Q_OBJECT
@@ -24,9 +25,16 @@ public:
 
 protected:
     void changeStatus(Status status);
+    void resizeEvent(QResizeEvent*) override;
+
+Q_SIGNALS:
+    void allFinished();
 
 private:
     void run();
+
+private Q_SLOTS:
+    void resizeResultUI();
 
 private:
     Status                  mStatus;
@@ -39,6 +47,9 @@ private:
     PushButton*             mPauBtn;
     PushButton*             mStpBtn;
     PushButton*             mChkBtn;
+
+    QWidget*                mScrollWidget = nullptr;
+    QScrollArea*            mScrollArea = nullptr;
 };
 
 

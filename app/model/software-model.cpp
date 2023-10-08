@@ -17,6 +17,7 @@
 #include <gio/gdesktopappinfo.h>
 
 #include "software-item.h"
+#include "../utils/tools.h"
 
 inline QString getCommandFullPath(const QString& cmd);
 
@@ -161,6 +162,7 @@ void SoftwareModel::loadApps()
             auto category = g_desktop_app_info_get_categories (desktopApp);
             auto version = getAppVersionByCommand (cmd);
             auto item = new SoftwareItem(name, version, category, getAppInstallTimeByCommand (cmd));
+            QApplication::processEvents();
             if (!version.isEmpty() && (name && strlen (name) > 0)) {
                 Q_EMIT addItem (item);
             }
