@@ -32,7 +32,7 @@ HardwareUI::HardwareUI(QWidget *parent)
     f.setPointSizeF (f.pointSizeF() - 2);
     QFontMetrics fm(f);
     static const int pSize = fm.width (SOFTWARE_TITLE);
-    mTitle->setMinimumWidth (pSize + 80);
+    mTitle->setMinimumWidth (pSize + 100);
 
     mShowDetail = new QPushButton;
     mShowDetail->setFlat (true);

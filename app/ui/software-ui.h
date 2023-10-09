@@ -24,6 +24,7 @@ Q_SIGNALS:
     void pause();
     void start();
 
+    void reset ();
     void resizeUI();
     void updateItemCount();
 

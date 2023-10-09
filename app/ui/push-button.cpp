@@ -90,7 +90,7 @@ void PushButton::mouseReleaseEvent(QMouseEvent *event)
     Q_UNUSED(event)
 
     if (mIsEnable) {
-        qDebug() << "mouseReleaseEvent";
+//        qDebug() << "mouseReleaseEvent";
         Q_EMIT clicked ();
     }
 }

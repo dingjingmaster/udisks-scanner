@@ -5,6 +5,7 @@
 #ifndef UDISKS_SCANNER_SOFTWARE_MODEL_H
 #define UDISKS_SCANNER_SOFTWARE_MODEL_H
 #include <QAbstractTableModel>
+#include "../db/software-db.h"
 
 
 class SoftwareItem;
@@ -19,6 +20,7 @@ public Q_SLOTS:
     void loadApps();
 
 Q_SIGNALS:
+    void reset();
     void updateView();
     void addItem(SoftwareItem* item);
 
@@ -37,8 +39,7 @@ public:
     bool removeRows (int row, int count, const QModelIndex &parent = QModelIndex()) override;
 
 private:
-    QList<SoftwareItem*>                    mData;
-    QMap<QString, SoftwareItem*>            mDataIdx;
+    SoftwareDB*                             mData;
 };
 
 

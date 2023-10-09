@@ -42,6 +42,11 @@ QString getSwapInfo ();
 QString getLocalMAC ();
 QString getDesktopInfo ();
 QString getLocalPCName ();
+QString getCommandFullPath(const QString& cmd);
+QString getSoftwareCategory(const QString& cate);
+QString getAppVersionByCommand(const QString& cmd);
+QString executeCommandGetResult(const QString& cmd);
+qint64 getAppInstallTimeByCommand(const QString& cmd);
 QString getHostPropertyByDbus (const QString& propertyName);
 
 #endif //UDISKS_SCANNER_TOOLS_H

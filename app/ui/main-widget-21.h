@@ -9,11 +9,11 @@
 
 class QLabel;
 
-
 class PushButton;
 class SoftwareUI;
 class HardwareUI;
 class QScrollArea;
+class QProgressBar;
 class MainWidget21 : public QWidget
 {
     Q_OBJECT
@@ -50,6 +50,11 @@ private:
 
     QWidget*                mScrollWidget = nullptr;
     QScrollArea*            mScrollArea = nullptr;
+
+    int                     mMaxProgress = 0;           // 假进度条的最大值， 最大是 100
+    int                     mMinProgress = 0;           //
+    QTimer*                 mProgressTimer = nullptr;
+    QProgressBar*           mProgress = nullptr;
 };
 
 

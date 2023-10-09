@@ -14,6 +14,7 @@
 #include "../view/software-view.h"
 #include "../model/software-item.h"
 #include "../model/software-model.h"
+#include "db/software-db.h"
 
 #define SOFTWARE_TITLE              "软件检查 ----------------------------------------------------------------------- %1项"
 
@@ -30,7 +31,7 @@ SoftwareUI::SoftwareUI(QWidget *parent)
     f.setPointSizeF (f.pointSizeF() - 2);
     QFontMetrics fm(f);
     static const int pSize = fm.width (SOFTWARE_TITLE);
-    mTitle->setMinimumWidth (pSize + 80);
+    mTitle->setMinimumWidth (pSize + 100);
 
     mShowDetail = new QPushButton;
     mShowDetail->setFlat (true);
@@ -46,6 +47,8 @@ SoftwareUI::SoftwareUI(QWidget *parent)
     mMainLayout->addWidget (mView);
 
     setLayout (mMainLayout);
+
+    connect (this, &SoftwareUI::reset, mModel, &SoftwareModel::reset);
 
     connect (this, &SoftwareUI::updateItemCount, this, [=] () {
         mTitle->setText (QString(SOFTWARE_TITLE).arg (mModel->rowCount ()));
@@ -86,8 +89,6 @@ SoftwareUI::SoftwareUI(QWidget *parent)
         Q_EMIT updateItemCount();
     });
 
-    connect (this, &SoftwareUI::start, mModel, &SoftwareModel::loadApps);
-    //
 
     mView->horizontalHeader()->setSectionsClickable (false);
     mView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

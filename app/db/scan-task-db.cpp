@@ -33,7 +33,7 @@ public:
     explicit ScanTaskDBPrivate(QString dbPath, ScanTaskDB* p, QObject* parent=nullptr);
     ~ScanTaskDBPrivate() override;
 
-    void open ();
+    bool open ();
     void close ();
     void setRunning(bool r);
     bool isRunning();
@@ -134,7 +134,7 @@ void ScanTaskDBPrivate::onDBChanged()
 
     LOG_DEBUG("sql: %s", sql);
     {
-        open();
+        g_return_if_fail(open());
         setRunning (true);
 
         QSet<QString> addedTasks;
@@ -233,15 +233,16 @@ void ScanTaskDBPrivate::onDBChanged()
     Q_EMIT q->loadTaskFinished();
 }
 
-void ScanTaskDBPrivate::open()
+bool ScanTaskDBPrivate::open()
 {
     close();
 
     int rc = sqlite3_open (mDBPath.toUtf8().constData(), &mDB);
     if (SQLITE_OK != rc) {
-        qCritical() << "connect to db: " << mDBPath << " failed!";
-        qApp->exit (-1);
+        qWarning() << "connect to db: " << mDBPath << " failed!";
+        return false;
     }
+    return true;
 }
 
 void ScanTaskDBPrivate::close()

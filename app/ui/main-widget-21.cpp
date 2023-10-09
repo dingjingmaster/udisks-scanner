@@ -6,6 +6,7 @@
 
 #include <QLabel>
 #include <QDebug>
+#include <QTimer>
 #include <QDateTime>
 #include <QScrollArea>
 #include <QPushButton>
@@ -19,13 +20,16 @@
 #include "software-ui.h"
 #include "hardware-ui.h"
 #include "../utils/tools.h"
-
+#include "db/software-db.h"
 
 
 MainWidget21::MainWidget21(QWidget *parent)
     : QWidget (parent)
 {
     setContentsMargins (0, 0, 0, 0);
+
+    mProgressTimer = new QTimer;
+    mProgressTimer->setInterval (1000);
 
     auto f = qApp->font();
     f.setPointSizeF (f.pointSizeF() - 2);
@@ -39,7 +43,7 @@ MainWidget21::MainWidget21(QWidget *parent)
     auto progressLayout = new QHBoxLayout;
 
     auto progressLabel = new QLabel;
-    auto progress = new QProgressBar;
+    mProgress = new QProgressBar;
     auto progressStatusLabel = new QLabel;
 
     mDelBtn = new PushButton;
@@ -75,14 +79,14 @@ MainWidget21::MainWidget21(QWidget *parent)
     btnLayout->addStretch ();
     mainLayout->addLayout (btnLayout);
 
-    progress->setRange (0, 100);
-    progress->setFixedHeight (10);
-    progress->setTextVisible (false);
+    mProgress->setRange (0, 100);
+    mProgress->setFixedHeight (10);
+    mProgress->setTextVisible (false);
     progressLabel->setFixedWidth (pSize);
     progressStatusLabel->setFixedWidth (sSize);
 
     progressLayout->setSpacing (9);
-    progressLayout->addWidget (progress);
+    progressLayout->addWidget (mProgress);
     progressLayout->addWidget (progressLabel);
     progressLayout->addWidget (progressStatusLabel);
 
@@ -102,7 +106,6 @@ MainWidget21::MainWidget21(QWidget *parent)
 
     mScrollWidget = new QWidget;
     mScrollArea = new QScrollArea;
-//    mScrollWidget->setSizePolicy (QSizePolicy::Preferred, QSizePolicy::Preferred);
 
     mHardwareUI = new HardwareUI;
     scanUILayout->addWidget (mHardwareUI);
@@ -119,21 +122,54 @@ MainWidget21::MainWidget21(QWidget *parent)
     mainLayout->addStretch ();
     setLayout (mainLayout);
 
-    connect (progress, &QProgressBar::valueChanged, this, [=] (int val) {
-        auto pec = float (val) / (float) (progress->maximum() - progress->minimum());
+    connect (mProgressTimer, &QTimer::timeout, this, [&] () -> void {
+        if (Pause == mStatus) return;
+
+        auto cur = mProgress->value();
+
+        if (cur < mMinProgress) {
+            cur = mMinProgress;
+        }
+        else if (cur > mMaxProgress) {
+            cur = mMaxProgress;
+        }
+        else {
+            cur += 1;
+        }
+
+        if (mStatus == Finished) {
+            mProgress->valueChanged(100);
+        }
+        else {
+            mProgress->valueChanged(cur);
+        }
+    });
+
+    connect (mProgress, &QProgressBar::valueChanged, this, [=] (int val) {
+        auto pec = float (val) / (float) (mProgress->maximum() - mProgress->minimum());
         pec = ((pec < 0) ? 0 : ((pec > 1) ? 1 : pec));
         progressLabel->setText((pec == 0) ? "" : QString("%1%").arg (pec * 100, 0, 'f', 1));
         if (pec > 0 && pec < 1) {
             progressStatusLabel->setText ("检查中");
         }
         else if (pec == 1) {
-            progressStatusLabel->setText ("<red>已完成</red>");
+            progressStatusLabel->setText ("已完成");
             // NOTE://
         }
         else {
             progressStatusLabel->setText ("");
         }
-        progress->setValue (qRound(pec * 100));
+
+        int valT = qRound (pec * 100);
+        if (Finished != mStatus && valT == 100) {
+            valT = 99;
+        }
+        mProgress->setValue (valT);
+
+        if (Finished == mStatus) {
+            mProgress->setValue (100);
+            mProgressTimer->stop();
+        }
     });
 
     connect (mHardwareUI, &HardwareUI::resizeUI, this, &MainWidget21::resizeResultUI);
@@ -153,8 +189,14 @@ MainWidget21::MainWidget21(QWidget *parent)
         changeStatus (Finished);
     });
 
+    // software ui -- 开始
+    connect (mSoftwareUI, &SoftwareUI::stop,  SoftwareDB::getInstance(), &SoftwareDB::stop,  Qt::DirectConnection);
+    connect (mSoftwareUI, &SoftwareUI::start, SoftwareDB::getInstance(), &SoftwareDB::start, Qt::DirectConnection);
+    connect (mSoftwareUI, &SoftwareUI::pause, SoftwareDB::getInstance(), &SoftwareDB::pause, Qt::DirectConnection);
+    //
+
     // init
-    Q_EMIT progress->valueChanged (90);
+    Q_EMIT mProgress->valueChanged (0);
     updateBaseInfo ();
     changeStatus (Stop);
 }
@@ -170,6 +212,11 @@ void MainWidget21::updateBaseInfo(qint64 startTime, qint64 stopTime)
 
     if (stopTime > 0) {
         stopTimeS = stopTime;
+    }
+
+    if (startTime == 0 && stopTime == 0) {
+        startTimeS = 0;
+        stopTimeS = 0;
     }
 
     mBaseInfoLabel->setText (QString("<h3>基本信息</h3>"
@@ -210,8 +257,20 @@ void MainWidget21::changeStatus(MainWidget21::Status status)
             mPauBtn->setEnable (true);
             mStpBtn->setEnable (true);
             mChkBtn->setEnable (false);
-//            mSoftwareUI->start();
-            mHardwareUI->start();
+            if (!mProgressTimer->isActive()) {
+                mProgressTimer->start();
+                mProgress->valueChanged (0);
+                mSoftwareUI->reset();
+                updateBaseInfo (0, 0);
+                updateBaseInfo (QDateTime::currentSecsSinceEpoch());
+            }
+            mMinProgress = 0;
+            mMaxProgress = 50;
+            Q_EMIT mHardwareUI->start();
+            mMinProgress = 50;
+            mMaxProgress = 100;
+            Q_EMIT mSoftwareUI->start();
+            Q_EMIT allFinished();
             break;
         }
         case Pause: {
@@ -220,8 +279,8 @@ void MainWidget21::changeStatus(MainWidget21::Status status)
             mPauBtn->setEnable (true);
             mStpBtn->setEnable (false);
             mChkBtn->setEnable (false);
-            mSoftwareUI->pause();
             mHardwareUI->pause();
+            mSoftwareUI->pause();
             break;
         }
         case Finished: {
@@ -230,6 +289,7 @@ void MainWidget21::changeStatus(MainWidget21::Status status)
             mPauBtn->setEnable (false);
             mStpBtn->setEnable (false);
             mChkBtn->setEnable (true);
+            updateBaseInfo (0, QDateTime::currentSecsSinceEpoch());
             break;
         }
         default: {
@@ -256,16 +316,12 @@ void MainWidget21::resizeResultUI()
     auto w = size().width() - diffW;
     mScrollWidget->setFixedWidth(w - 20);
     mScrollArea->setFixedWidth(w);
-//    qDebug() << "w: " << w << " -- " << diffW;
 
     auto diffH = 240;
     auto h = size().height() - diffH;
     mScrollArea->setMinimumHeight(h + 10);
-//    qDebug() << "h: " << h << " -- " << diffH;
 
     auto hContent = mSoftwareUI->getHeight() + mHardwareUI->getHeight();
-    qDebug() << "c h 1: " << hContent;
     hContent = ((hContent < h) ? h : hContent);
     mScrollWidget->setMinimumHeight(hContent);
-    qDebug() << "c h 2: " << hContent;
 }
