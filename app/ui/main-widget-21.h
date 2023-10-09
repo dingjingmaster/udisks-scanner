@@ -28,6 +28,7 @@ protected:
     void resizeEvent(QResizeEvent*) override;
 
 Q_SIGNALS:
+    void cancel();
     void allFinished();
 
 private:

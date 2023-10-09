@@ -111,6 +111,21 @@ HardwareUI::HardwareUI(QWidget *parent)
         mTitle->setText (QString(SOFTWARE_TITLE).arg (count));
     });
 
+    connect (this, &HardwareUI::reset, this, [=] () {
+        mDate->setText ("");
+        mComputerName->setText ("");
+        mOperationSystemName->setText ("");
+        mLanguage->setText ("");
+        mManufacturer->setText ("");
+        mSystemVersion->setText ("");
+        mBIOS->setText ("");
+        mCPU->setText ("");
+        mMem->setText ("");
+        mSwap->setText ("");
+        mDesktop->setText ("");
+        Q_EMIT updateItemCount ();
+    });
+
     connect (this, &HardwareUI::start, this, [=] () {
         // FIXME://
         auto dateStr = QDateTime::currentDateTime().toString ("yyyy年MM月dd日 hh:mm:ss");

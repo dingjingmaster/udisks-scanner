@@ -112,6 +112,7 @@ void SoftwareDB::onDBChanged()
             auto version = getAppVersionByCommand (cmd);
             auto item = std::make_shared<SoftwareItem>(name, version, category, getAppInstallTimeByCommand (cmd));
             QApplication::processEvents();
+            if (mPause == 2) goto end;
             if (!version.isEmpty()
                 && (name && strlen (name) > 0)
                 && !mDataIdx.contains (name)) {
@@ -120,6 +121,7 @@ void SoftwareDB::onDBChanged()
                 Q_EMIT addItem ();
             }
         }
+end:
         g_object_unref (app->data);
 
         while (mPause == 1) {g_usleep(500); QApplication::processEvents (); };
@@ -127,7 +129,7 @@ void SoftwareDB::onDBChanged()
     }
     g_list_free(apps);
 
-    Q_EMIT loadItemFinished();
+    if (2 != mPause)    Q_EMIT loadItemFinished();
 }
 
 void SoftwareDB::reset()

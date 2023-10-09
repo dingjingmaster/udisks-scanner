@@ -170,6 +170,10 @@ MainWidget21::MainWidget21(QWidget *parent)
             mProgress->setValue (100);
             mProgressTimer->stop();
         }
+        else if (Stop == mStatus) {
+            progressStatusLabel->setText ("");
+            mProgressTimer->stop();
+        }
     });
 
     connect (mHardwareUI, &HardwareUI::resizeUI, this, &MainWidget21::resizeResultUI);
@@ -185,6 +189,11 @@ MainWidget21::MainWidget21(QWidget *parent)
     connect (mPauBtn, &PushButton::clicked, this, [&] () {
         changeStatus (Pause);
     });
+
+    connect (mDelBtn, &PushButton::clicked, this, [&] () {
+        changeStatus (Stop);
+    });
+
     connect (this, &MainWidget21::allFinished, this, [&] () {
         changeStatus (Finished);
     });
@@ -223,7 +232,7 @@ void MainWidget21::updateBaseInfo(qint64 startTime, qint64 stopTime)
                                      "主机名: %1 &nbsp;&nbsp;&nbsp;&nbsp;任务名称: %2 &nbsp;&nbsp;&nbsp;&nbsp;IP地址: %3 &nbsp;&nbsp;&nbsp;&nbsp;开始时间: %4 &nbsp;&nbsp;&nbsp;&nbsp;结束时间: %5")
                                      .arg (g_get_host_name(), "脆弱性检查任务", getLocalIP(),
                                            (startTimeS > 0) ? QDateTime::fromSecsSinceEpoch (startTimeS).toString ("yyyy-MM-dd hh:mm:ss") : "",
-                                           (stopTimeS > 0) ? QDateTime::fromSecsSinceEpoch (startTimeS).toString ("yyyy-MM-dd hh:mm:ss") : "")
+                                           (stopTimeS > 0) ? QDateTime::fromSecsSinceEpoch (stopTimeS).toString ("yyyy-MM-dd hh:mm:ss") : "")
                                      );
 }
 
@@ -247,8 +256,12 @@ void MainWidget21::changeStatus(MainWidget21::Status status)
             mPauBtn->setEnable (false);
             mStpBtn->setEnable (false);
             mChkBtn->setEnable (true);
-            mSoftwareUI->stop();
             mHardwareUI->stop();
+            mSoftwareUI->stop();
+            mHardwareUI->reset();
+            mSoftwareUI->reset();
+            mProgress->valueChanged (0);
+//            updateBaseInfo (0, 0);
             break;
         }
         case Running: {

@@ -48,7 +48,10 @@ SoftwareUI::SoftwareUI(QWidget *parent)
 
     setLayout (mMainLayout);
 
-    connect (this, &SoftwareUI::reset, mModel, &SoftwareModel::reset);
+    connect (this, &SoftwareUI::reset, this, [=] () {
+        mModel->reset();
+        updateItemCount();
+    });
 
     connect (this, &SoftwareUI::updateItemCount, this, [=] () {
         mTitle->setText (QString(SOFTWARE_TITLE).arg (mModel->rowCount ()));
