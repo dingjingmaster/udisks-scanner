@@ -104,8 +104,16 @@ MainWidget21::MainWidget21(QWidget *parent)
     mainLayout->addSpacing (12);
     mainLayout->addWidget (result);
 
-    mScrollWidget = new QWidget;
+    mScrollWidget1 = new QWidget;           // top
+    mScrollWidget1->setSizePolicy (QSizePolicy::Expanding, QSizePolicy::Expanding);
+
     mScrollArea = new QScrollArea;
+    mScrollArea->setWidgetResizable (true);
+    mScrollArea->setSizePolicy (QSizePolicy::Preferred, QSizePolicy::Preferred);
+
+    mScrollWidget2 = new QWidget;           // in
+    mScrollWidget2->setSizePolicy (QSizePolicy::Expanding, QSizePolicy::Expanding);
+    auto scrollWidget1L = new QVBoxLayout;
 
     mHardwareUI = new HardwareUI;
     scanUILayout->addWidget (mHardwareUI);
@@ -114,12 +122,13 @@ MainWidget21::MainWidget21(QWidget *parent)
     scanUILayout->addWidget (mSoftwareUI);
     scanUILayout->addStretch ();
 
-    mScrollWidget->setLayout (scanUILayout);
-    mScrollArea->setWidget (mScrollWidget);
+    mScrollWidget2->setLayout (scanUILayout);
+    mScrollArea->setWidget (mScrollWidget2);
+    scrollWidget1L->addWidget (mScrollArea);
+    mScrollWidget1->setLayout (scrollWidget1L);
 
-    mainLayout->addWidget(mScrollArea);
+    mainLayout->addWidget(mScrollWidget1);
 
-    mainLayout->addStretch ();
     setLayout (mainLayout);
 
     connect (mProgressTimer, &QTimer::timeout, this, [&] () -> void {
@@ -324,17 +333,18 @@ void MainWidget21::resizeEvent(QResizeEvent* ev)
 
 void MainWidget21::resizeResultUI()
 {
-    auto diffW = 20 + contentsMargins().left() + contentsMargins().right()
-                 + mScrollWidget->contentsMargins().left() + mScrollWidget->contentsMargins().right();
-    auto w = size().width() - diffW;
-    mScrollWidget->setFixedWidth(w - 20);
-    mScrollArea->setFixedWidth(w);
-
-    auto diffH = 240;
-    auto h = size().height() - diffH;
-    mScrollArea->setMinimumHeight(h + 10);
-
-    auto hContent = mSoftwareUI->getHeight() + mHardwareUI->getHeight();
-    hContent = ((hContent < h) ? h : hContent);
-    mScrollWidget->setMinimumHeight(hContent);
+    return;
+//    auto diffW = 20 + contentsMargins().left() + contentsMargins().right()
+//                 + mScrollWidget->contentsMargins().left() + mScrollWidget->contentsMargins().right();
+//    auto w = size().width() - diffW;
+//    mScrollWidget->setFixedWidth(w - 20);
+//    mScrollArea->setFixedWidth(w);
+//
+//    auto diffH = 240;
+//    auto h = size().height() - diffH;
+//    mScrollArea->setMinimumHeight(h + 10);
+//
+//    auto hContent = mSoftwareUI->getHeight() + mHardwareUI->getHeight();
+//    hContent = ((hContent < h) ? h : hContent);
+//    mScrollWidget->setMinimumHeight(hContent);
 }

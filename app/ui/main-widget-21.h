@@ -49,7 +49,8 @@ private:
     PushButton*             mStpBtn;
     PushButton*             mChkBtn;
 
-    QWidget*                mScrollWidget = nullptr;
+    QWidget*                mScrollWidget1 = nullptr;
+    QWidget*                mScrollWidget2 = nullptr;
     QScrollArea*            mScrollArea = nullptr;
 
     int                     mMaxProgress = 0;           // 假进度条的最大值， 最大是 100

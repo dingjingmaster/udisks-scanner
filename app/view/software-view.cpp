@@ -14,6 +14,7 @@
 SoftwareView::SoftwareView(QTableView *parent)
     : QTableView (parent)
 {
+    setMinimumHeight (260);
     setMouseTracking(true);
 
     setSelectionBehavior(QAbstractItemView::SelectRows);
