@@ -30,6 +30,7 @@ protected:
 Q_SIGNALS:
     void cancel();
     void allFinished();
+    void updateCheckResult(int success=0, int warning=0);
 
 private:
     void run();
@@ -52,6 +53,9 @@ private:
     QWidget*                mScrollWidget1 = nullptr;
     QWidget*                mScrollWidget2 = nullptr;
     QScrollArea*            mScrollArea = nullptr;
+
+    int                     mSuccessItem = 0;
+    int                     mWarningItem = 0;
 
     int                     mMaxProgress = 0;           // 假进度条的最大值， 最大是 100
     int                     mMinProgress = 0;           //

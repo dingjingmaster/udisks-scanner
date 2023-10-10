@@ -1,12 +1,14 @@
 <RCC>
     <qresource prefix="/">
-        <file>data/stylesheet.qss</file>
+        <file>data/up.png</file>
         <file>data/dsm.png</file>
-        <file>data/dsip.png</file>
         <file>data/max.png</file>
         <file>data/min.png</file>
-        <file>data/close.png</file>
-        <file>data/up.png</file>
+        <file>data/dsip.png</file>
         <file>data/down.png</file>
+        <file>data/close.png</file>
+        <file>data/warning.png</file>
+        <file>data/success.png</file>
+        <file>data/stylesheet.qss</file>
     </qresource>
 </RCC>

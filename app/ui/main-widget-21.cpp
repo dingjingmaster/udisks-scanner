@@ -23,6 +23,27 @@
 #include "db/software-db.h"
 
 
+#define SUCCESS_TIP         "以下 %1 项没有问题"
+#define WARNING_TIP         "以下 %1 项有问题"
+
+#define RESULT_TIP(val, icon, layout) \
+    auto label ## val = new QWidget;                                            \
+    auto ml ## val = new QHBoxLayout;                                           \
+    auto icon ## val = new QLabel;                                              \
+    auto tip ## val = new QLabel;                                               \
+    icon ## val->setPixmap(QPixmap(":/data/" #icon ".png").scaled (32, 32));    \
+    ml ## val->addWidget (icon ## val);                                         \
+    ml ## val->addSpacing(8);                                                   \
+    ml ## val->addWidget (tip ## val);                                          \
+    ml ## val->addStretch ();                                                   \
+    label ## val->setLayout (ml ## val);                                        \
+    layout->addWidget (label ## val);                                           \
+
+
+#define RESULT_SET_TIP(val, tipStr, numValue) \
+    (tip ## val)->setText (QString(tipStr).arg (numValue));                     \
+
+
 MainWidget21::MainWidget21(QWidget *parent)
     : QWidget (parent)
 {
@@ -115,6 +136,12 @@ MainWidget21::MainWidget21(QWidget *parent)
     mScrollWidget2->setSizePolicy (QSizePolicy::Expanding, QSizePolicy::Expanding);
     auto scrollWidget1L = new QVBoxLayout;
 
+    // 以下xxx项有问题
+    RESULT_TIP(Warning, warning, scanUILayout)
+
+    // 以下xxx项没有问题
+    RESULT_TIP(Success, success, scanUILayout)
+
     mHardwareUI = new HardwareUI;
     scanUILayout->addWidget (mHardwareUI);
 
@@ -130,6 +157,13 @@ MainWidget21::MainWidget21(QWidget *parent)
     mainLayout->addWidget(mScrollWidget1);
 
     setLayout (mainLayout);
+
+    connect (this, &MainWidget21::updateCheckResult, this, [&] (int success, int warning) ->void {
+        mSuccessItem += success;
+        mWarningItem += warning;
+        RESULT_SET_TIP(Success, SUCCESS_TIP, mSuccessItem)
+        RESULT_SET_TIP(Warning, WARNING_TIP, mWarningItem)
+    });
 
     connect (mProgressTimer, &QTimer::timeout, this, [&] () -> void {
         if (Pause == mStatus) return;
@@ -214,6 +248,7 @@ MainWidget21::MainWidget21(QWidget *parent)
     //
 
     // init
+    Q_EMIT updateCheckResult ();
     Q_EMIT mProgress->valueChanged (0);
     updateBaseInfo ();
     changeStatus (Stop);
