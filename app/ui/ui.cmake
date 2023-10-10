@@ -41,6 +41,15 @@ file(GLOB UI_SRC
         ${CMAKE_SOURCE_DIR}/app/ui/progress.h
         ${CMAKE_SOURCE_DIR}/app/ui/progress.cpp
 
+        ${CMAKE_SOURCE_DIR}/app/ui/check-item-widget.h
+        ${CMAKE_SOURCE_DIR}/app/ui/check-item-widget.cpp
+
         ${CMAKE_SOURCE_DIR}/app/ui/task-start-dialog.h
         ${CMAKE_SOURCE_DIR}/app/ui/task-start-dialog.cpp
+
+        ${CMAKE_SOURCE_DIR}/app/ui/configure-check-ui.ui
+        ${CMAKE_SOURCE_DIR}/app/ui/configure-check-ui.cpp
+
+        ${CMAKE_SOURCE_DIR}/app/ui/vulnerability-check-ui.h
+        ${CMAKE_SOURCE_DIR}/app/ui/vulnerability-check-ui.cpp
         )

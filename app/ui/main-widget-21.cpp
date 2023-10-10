@@ -21,6 +21,8 @@
 #include "hardware-ui.h"
 #include "../utils/tools.h"
 #include "db/software-db.h"
+#include "configure-check-ui.h"
+#include "vulnerability-check-ui.h"
 
 
 #define SUCCESS_TIP         "以下 %1 项没有问题"
@@ -139,8 +141,20 @@ MainWidget21::MainWidget21(QWidget *parent)
     // 以下xxx项有问题
     RESULT_TIP(Warning, warning, scanUILayout)
 
+    mVulnerabilityUIWARN = new VulnerabilityCheckUI;
+    scanUILayout->addWidget (mVulnerabilityUIWARN);
+
+    mConfigureUIWARN = new ConfigureCheckUI;
+    scanUILayout->addWidget (mConfigureUIWARN);
+
     // 以下xxx项没有问题
     RESULT_TIP(Success, success, scanUILayout)
+
+    mVulnerabilityUIOK = new VulnerabilityCheckUI;
+    scanUILayout->addWidget (mVulnerabilityUIOK);
+
+    mConfigureUIOK = new ConfigureCheckUI;
+    scanUILayout->addWidget (mConfigureUIOK);
 
     mHardwareUI = new HardwareUI;
     scanUILayout->addWidget (mHardwareUI);

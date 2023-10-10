@@ -8,12 +8,14 @@
 #include <QVBoxLayout>
 
 class QLabel;
-
 class PushButton;
-class SoftwareUI;
-class HardwareUI;
 class QScrollArea;
 class QProgressBar;
+
+class SoftwareUI;
+class HardwareUI;
+class ConfigureCheckUI;
+class VulnerabilityCheckUI;
 class MainWidget21 : public QWidget
 {
     Q_OBJECT
@@ -40,9 +42,15 @@ private Q_SLOTS:
 
 private:
     Status                  mStatus;
+
     QLabel*                 mBaseInfoLabel = nullptr;
+
     SoftwareUI*             mSoftwareUI = nullptr;
     HardwareUI*             mHardwareUI = nullptr;
+    ConfigureCheckUI*       mConfigureUIOK = nullptr;
+    ConfigureCheckUI*       mConfigureUIWARN = nullptr;
+    VulnerabilityCheckUI*   mVulnerabilityUIOK = nullptr;
+    VulnerabilityCheckUI*   mVulnerabilityUIWARN = nullptr;
 
     PushButton*             mDelBtn;
     PushButton*             mExpBtn;

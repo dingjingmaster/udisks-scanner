@@ -1,6 +1,5 @@
-project(udisks-scanner LANGUAGES C CXX)
-
 cmake_minimum_required(VERSION 3.5)
+project(udisks-scanner LANGUAGES C CXX)
 
 set(DEBUG ON)
 set(CMAKE_AUTOUIC ON)
