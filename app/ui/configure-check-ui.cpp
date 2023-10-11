@@ -62,3 +62,13 @@ ConfigureCheckUI::ConfigureCheckUI(QWidget *parent)
     Q_EMIT updateItemCount ();
     Q_EMIT mShowDetail->toggled (mIsChecked);
 }
+
+int ConfigureCheckUI::getSuccessItem() const
+{
+    return ((mSuccessItem > 0) ? mSuccessItem : 0);
+}
+
+int ConfigureCheckUI::getWarningItem() const
+{
+    return ((mWarningItem > 0) ? mWarningItem : 0);
+}

@@ -16,6 +16,9 @@ class ConfigureCheckUI : public QWidget
 public:
     explicit ConfigureCheckUI(QWidget* parent = nullptr);
 
+    int getSuccessItem() const;
+    int getWarningItem() const;
+
 Q_SIGNALS:
     void stop();
     void pause();
@@ -26,6 +29,9 @@ Q_SIGNALS:
     void updateItemCount(int c=0);
 
 private:
+    int                         mSuccessItem = 0;
+    int                         mWarningItem = 0;
+
     QLabel*                     mTitle;
     QWidget*                    mDetailWidget;
     QVBoxLayout*                mMainLayout;

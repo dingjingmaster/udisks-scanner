@@ -19,6 +19,9 @@ public:
     int getHeight();
     explicit SoftwareUI(QWidget* parent=nullptr);
 
+    int getSuccessItem() const;
+    int getWarningItem() const;
+
 Q_SIGNALS:
     void stop();
     void pause();
@@ -26,12 +29,15 @@ Q_SIGNALS:
 
     void reset ();
     void resizeUI();
-    void updateItemCount();
+    void updateItemCount(int success=0, int warning=0);
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
 
 private:
+    int                         mSuccessItem = 0;
+    int                         mWarningItem = 0;
+
     const int                   mItemIdxWidth = 60;
     const int                   mItemCategoryWidth = 120;
     const int                   mItemInstallTimeWidth = 180;

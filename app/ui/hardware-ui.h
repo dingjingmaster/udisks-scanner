@@ -18,6 +18,9 @@ public:
     explicit HardwareUI(QWidget* parent=nullptr);
     int getHeight();
 
+    int getSuccessItem() const;
+    int getWarningItem() const;
+
 Q_SIGNALS:
     void stop();
     void pause();
@@ -26,12 +29,15 @@ Q_SIGNALS:
     void reset();
 
     void resizeUI();
-    void updateItemCount(int c=0);
+    void updateItemCount(int success=0, int warning=0);
 
 protected:
 //    void resizeEvent(QResizeEvent* event) override;
 
 private:
+    int                         mSuccessItem = 0;
+    int                         mWarningItem = 0;
+
     QLabel*                     mDate;
     QLabel*                     mComputerName;
     QLabel*                     mOperationSystemName;

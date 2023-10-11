@@ -50,11 +50,13 @@ SoftwareUI::SoftwareUI(QWidget *parent)
 
     connect (this, &SoftwareUI::reset, this, [=] () {
         mModel->reset();
-        updateItemCount();
+        updateItemCount(mModel->rowCount ());
     });
 
-    connect (this, &SoftwareUI::updateItemCount, this, [=] () {
-        mTitle->setText (QString(SOFTWARE_TITLE).arg (mModel->rowCount ()));
+    connect (this, &SoftwareUI::updateItemCount, this, [=] (int success, int warning) {
+        mSuccessItem = success;
+        mWarningItem = warning;
+        mTitle->setText (QString(SOFTWARE_TITLE).arg (mSuccessItem));
     });
 
     connect (mShowDetail, &QPushButton::clicked, this, [=] (bool b) {
@@ -89,7 +91,7 @@ SoftwareUI::SoftwareUI(QWidget *parent)
             mView->update(mModel->index(i, 7));
             mView->update(mModel->index(i, 8));
         }
-        Q_EMIT updateItemCount();
+        updateItemCount(mModel->rowCount (), 0);
     });
 
 
@@ -124,11 +126,20 @@ void SoftwareUI::resizeEvent(QResizeEvent *event)
 
 int SoftwareUI::getHeight()
 {
-//    return this->height();
     if (mIsChecked) {
         return mTitle->height() + mView->height();
     }
     else {
         return mTitle->height();
     }
+}
+
+int SoftwareUI::getSuccessItem() const
+{
+    return ((mSuccessItem > 0) ? mSuccessItem : 0);
+}
+
+int SoftwareUI::getWarningItem() const
+{
+    return ((mWarningItem > 0) ? mWarningItem : 0);
 }

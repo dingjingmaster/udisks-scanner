@@ -107,8 +107,11 @@ HardwareUI::HardwareUI(QWidget *parent)
 
     setLayout (mMainLayout);
 
-    connect (this, &HardwareUI::updateItemCount, this, [=] (int count) {
-        mTitle->setText (QString(SOFTWARE_TITLE).arg (count));
+    connect (this, &HardwareUI::updateItemCount, this, [=] (int success, int warning) {
+        mSuccessItem = success;
+        mWarningItem = warning;
+
+        mTitle->setText (QString(SOFTWARE_TITLE).arg (mSuccessItem));
     });
 
     connect (this, &HardwareUI::reset, this, [=] () {
@@ -127,7 +130,6 @@ HardwareUI::HardwareUI(QWidget *parent)
     });
 
     connect (this, &HardwareUI::start, this, [=] () {
-        // FIXME://
         auto dateStr = QDateTime::currentDateTime().toString ("yyyy年MM月dd日 hh:mm:ss");
         mDate->setText (dateStr);
 
@@ -162,7 +164,7 @@ HardwareUI::HardwareUI(QWidget *parent)
         auto desktopInfo = getDesktopInfo();
         mDesktop->setText (desktopInfo);
 
-        Q_EMIT updateItemCount (11);
+        Q_EMIT updateItemCount (11, 0);
     });
 
     connect (mShowDetail, &QPushButton::clicked, this, [=] (bool) {
@@ -185,11 +187,6 @@ HardwareUI::HardwareUI(QWidget *parent)
     Q_EMIT mShowDetail->toggled(mIsChecked);
 }
 
-//void HardwareUI::resizeEvent(QResizeEvent *event)
-//{
-//    QWidget::resizeEvent (event);
-//}
-
 int HardwareUI::getHeight()
 {
     if (mIsChecked) {
@@ -198,4 +195,14 @@ int HardwareUI::getHeight()
     else {
         return mTitle->height();
     }
+}
+
+int HardwareUI::getSuccessItem() const
+{
+    return ((mSuccessItem > 0) ? mSuccessItem : 0);
+}
+
+int HardwareUI::getWarningItem() const
+{
+    return ((mWarningItem > 0) ? mWarningItem : 0);
 }

@@ -172,14 +172,21 @@ MainWidget21::MainWidget21(QWidget *parent)
 
     setLayout (mainLayout);
 
-    connect (this, &MainWidget21::updateCheckResult, this, [&] (int success, int warning) ->void {
-        mSuccessItem += success;
-        mWarningItem += warning;
+    connect (this, &MainWidget21::updateCheckResult, this, [=] (int success, int warning) ->void {
+        mSuccessItem = (mHardwareUI->getSuccessItem()
+            + mSoftwareUI->getSuccessItem()
+            + (mConfigureUIWARN->getSuccessItem() + mConfigureUIOK->getSuccessItem()) / 2
+            + (mVulnerabilityUIWARN->getSuccessItem() + mVulnerabilityUIOK->getSuccessItem()) / 2);
+        mWarningItem = (mHardwareUI->getWarningItem()
+            + mSoftwareUI->getWarningItem()
+            + (mConfigureUIWARN->getWarningItem() + mConfigureUIOK->getWarningItem()) / 2
+            + (mVulnerabilityUIWARN->getWarningItem() + mVulnerabilityUIOK->getWarningItem()) / 2);
+
         RESULT_SET_TIP(Success, SUCCESS_TIP, mSuccessItem)
         RESULT_SET_TIP(Warning, WARNING_TIP, mWarningItem)
     });
 
-    connect (mProgressTimer, &QTimer::timeout, this, [&] () -> void {
+    connect (mProgressTimer, &QTimer::timeout, this, [=] () -> void {
         if (Pause == mStatus) return;
 
         auto cur = mProgress->value();
@@ -231,6 +238,8 @@ MainWidget21::MainWidget21(QWidget *parent)
             progressStatusLabel->setText ("");
             mProgressTimer->stop();
         }
+
+        Q_EMIT updateCheckResult ();
     });
 
     connect (mHardwareUI, &HardwareUI::resizeUI, this, &MainWidget21::resizeResultUI);
