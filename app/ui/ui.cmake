@@ -52,4 +52,10 @@ file(GLOB UI_SRC
 
         ${CMAKE_SOURCE_DIR}/app/ui/vulnerability-check-ui.h
         ${CMAKE_SOURCE_DIR}/app/ui/vulnerability-check-ui.cpp
+
+        ${CMAKE_SOURCE_DIR}/app/ui/configure-check-item-ui.h
+        ${CMAKE_SOURCE_DIR}/app/ui/configure-check-item-ui.cpp
+
+        ${CMAKE_SOURCE_DIR}/app/ui/vulnerability-check-item-ui.h
+        ${CMAKE_SOURCE_DIR}/app/ui/vulnerability-check-item-ui.cpp
         )

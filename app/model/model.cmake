@@ -16,4 +16,10 @@ file(GLOB MODEL_SRC
 
         ${CMAKE_SOURCE_DIR}/app/model/software-model.h
         ${CMAKE_SOURCE_DIR}/app/model/software-model.cpp
+
+        ${CMAKE_SOURCE_DIR}/app/model/configure-item.h
+        ${CMAKE_SOURCE_DIR}/app/model/configure-item.cpp
+
+        ${CMAKE_SOURCE_DIR}/app/model/vulnerability-item.h
+        ${CMAKE_SOURCE_DIR}/app/model/vulnerability-item.cpp
 )

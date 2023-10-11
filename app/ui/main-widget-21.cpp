@@ -19,10 +19,12 @@
 #include "push-button.h"
 #include "software-ui.h"
 #include "hardware-ui.h"
-#include "../utils/tools.h"
+#include "utils/tools.h"
 #include "db/software-db.h"
 #include "configure-check-ui.h"
+#include "db/configure-report.h"
 #include "vulnerability-check-ui.h"
+#include "db/vulnerability-report.h"
 
 
 #define SUCCESS_TIP         "以下 %1 项没有问题"
@@ -141,19 +143,19 @@ MainWidget21::MainWidget21(QWidget *parent)
     // 以下xxx项有问题
     RESULT_TIP(Warning, warning, scanUILayout)
 
-    mVulnerabilityUIWARN = new VulnerabilityCheckUI;
+    mVulnerabilityUIWARN = new VulnerabilityCheckUI(VulnerabilityCheckUI::Warning);
     scanUILayout->addWidget (mVulnerabilityUIWARN);
 
-    mConfigureUIWARN = new ConfigureCheckUI;
+    mConfigureUIWARN = new ConfigureCheckUI(ConfigureCheckUI::Warning);
     scanUILayout->addWidget (mConfigureUIWARN);
 
     // 以下xxx项没有问题
     RESULT_TIP(Success, success, scanUILayout)
 
-    mVulnerabilityUIOK = new VulnerabilityCheckUI;
+    mVulnerabilityUIOK = new VulnerabilityCheckUI(VulnerabilityCheckUI::Success);
     scanUILayout->addWidget (mVulnerabilityUIOK);
 
-    mConfigureUIOK = new ConfigureCheckUI;
+    mConfigureUIOK = new ConfigureCheckUI(ConfigureCheckUI::Success);
     scanUILayout->addWidget (mConfigureUIOK);
 
     mHardwareUI = new HardwareUI;
@@ -171,6 +173,25 @@ MainWidget21::MainWidget21(QWidget *parent)
     mainLayout->addWidget(mScrollWidget1);
 
     setLayout (mainLayout);
+
+    auto configDB = ConfigureReport::getInstance();
+    connect (configDB, &ConfigureReport::addItem, this, [=] (QString& name) {
+        auto item = configDB->getItemByKey(name);
+        g_return_if_fail(item);
+        if (item->getIsError()) {
+            Q_EMIT mConfigureUIWARN->addItem (item);
+        }
+        else {
+            Q_EMIT mConfigureUIOK->addItem (item);
+        }
+    });
+
+    auto vulnerabilityDB = VulnerabilityReport::getInstance();
+    connect (vulnerabilityDB, &VulnerabilityReport::addItem, this, [=] (QString& name) {
+        auto item = vulnerabilityDB->getItemByKey(name);
+        g_return_if_fail(item);
+        Q_EMIT mVulnerabilityUIOK->addItem (item);
+    });
 
     connect (this, &MainWidget21::updateCheckResult, this, [=] (int success, int warning) ->void {
         mSuccessItem = (mHardwareUI->getSuccessItem()
@@ -248,6 +269,7 @@ MainWidget21::MainWidget21(QWidget *parent)
     connect (mChkBtn, &PushButton::clicked, this, [&] () {
         changeStatus (Running);
     });
+
     connect (mStpBtn, &PushButton::clicked, this, [&] () {
         changeStatus (Stop);
     });
@@ -323,12 +345,19 @@ void MainWidget21::changeStatus(MainWidget21::Status status)
             mPauBtn->setEnable (false);
             mStpBtn->setEnable (false);
             mChkBtn->setEnable (true);
+            mVulnerabilityUIWARN->stop();
+            mVulnerabilityUIOK->stop();
+            mConfigureUIWARN->stop();
+            mConfigureUIOK->stop();
             mHardwareUI->stop();
             mSoftwareUI->stop();
             mHardwareUI->reset();
             mSoftwareUI->reset();
+            mConfigureUIOK->reset();
+            mConfigureUIWARN->reset();
+            mVulnerabilityUIOK->reset();
+            mVulnerabilityUIWARN->reset();
             mProgress->valueChanged (0);
-//            updateBaseInfo (0, 0);
             break;
         }
         case Running: {
@@ -340,16 +369,34 @@ void MainWidget21::changeStatus(MainWidget21::Status status)
             if (!mProgressTimer->isActive()) {
                 mProgressTimer->start();
                 mProgress->valueChanged (0);
+
                 mSoftwareUI->reset();
+                mConfigureUIOK->reset();
+                mConfigureUIWARN->reset();
+                mVulnerabilityUIOK->reset();
+                mVulnerabilityUIWARN->reset();
+
                 updateBaseInfo (0, 0);
                 updateBaseInfo (QDateTime::currentSecsSinceEpoch());
             }
             mMinProgress = 0;
-            mMaxProgress = 50;
+            mMaxProgress = 5;
             Q_EMIT mHardwareUI->start();
-            mMinProgress = 50;
-            mMaxProgress = 100;
+            mMinProgress = 0;
+            mMaxProgress = 20;
             Q_EMIT mSoftwareUI->start();
+            mMinProgress = 0;
+            mMaxProgress = 40;
+            mConfigureUIOK->start();
+            mMinProgress = 0;
+            mMaxProgress = 60;
+            mConfigureUIWARN->start();
+            mMinProgress = 0;
+            mMaxProgress = 80;
+            mVulnerabilityUIOK->start();
+            mMinProgress = 0;
+            mMaxProgress = 99;
+            mVulnerabilityUIWARN->start();
             Q_EMIT allFinished();
             break;
         }
@@ -361,6 +408,10 @@ void MainWidget21::changeStatus(MainWidget21::Status status)
             mChkBtn->setEnable (false);
             mHardwareUI->pause();
             mSoftwareUI->pause();
+            mConfigureUIOK->pause();
+            mConfigureUIWARN->pause();
+            mVulnerabilityUIOK->pause();
+            mVulnerabilityUIWARN->pause();
             break;
         }
         case Finished: {

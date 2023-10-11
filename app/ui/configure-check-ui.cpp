@@ -7,11 +7,12 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QApplication>
+#include "../db/configure-report.h"
 
 #define SOFTWARE_TITLE              "配置检查 ----------------------------------------------------------------------- %1项"
 
-ConfigureCheckUI::ConfigureCheckUI(QWidget *parent)
-    : QWidget (parent), mIsChecked(false)
+ConfigureCheckUI::ConfigureCheckUI(Type type, QWidget *parent)
+    : QWidget (parent), mIsChecked(false), mType(type)
 {
     mMainLayout = new QVBoxLayout;
     auto titleLayout = new QHBoxLayout;
@@ -38,6 +39,27 @@ ConfigureCheckUI::ConfigureCheckUI(QWidget *parent)
     }
 
     setLayout (mMainLayout);
+
+    connect (this, &ConfigureCheckUI::stop, this, [=] () -> void {
+        ConfigureReport::getInstance()->stop();
+        Q_EMIT reset();
+    });
+
+    connect (this, &ConfigureCheckUI::pause, this, [=] () -> void {
+        ConfigureReport::getInstance()->pause();
+    });
+
+    connect (this, &ConfigureCheckUI::start, this, [=] () -> void {
+        ConfigureReport::getInstance()->start();
+    });
+
+    connect (this, &ConfigureCheckUI::reset, this, [=] () -> void {
+        ConfigureReport::getInstance()->reset();
+        for (auto& i : mItemWidget) {
+            mMainLayout->removeWidget (i.get());
+        }
+        mItemWidget.clear();
+    });
 
     connect (this, &ConfigureCheckUI::updateItemCount, this, [=] (int count) {
         mTitle->setText (QString(SOFTWARE_TITLE).arg (count));
