@@ -74,6 +74,8 @@ MainWindow::MainWindow (QWidget *parent)
 
     setLayout (mMainLayout);
 
+    connect (mHeader, &MainHeader::windowClose, mWindow21, &MainWidget21::cancel);
+
     connect (mHeader, &MainHeader::windowClose, this, [=] () {
         QApplication::exit(0);
     });

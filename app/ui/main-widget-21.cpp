@@ -286,6 +286,15 @@ MainWidget21::MainWidget21(QWidget *parent)
         changeStatus (Finished);
     });
 
+    connect (this, &MainWidget21::cancel, this, [=] () {
+        mHardwareUI->stop();
+        mSoftwareUI->stop();
+        mConfigureUIOK->stop();
+        mConfigureUIWARN->stop();
+        mVulnerabilityUIOK->stop();
+        mVulnerabilityUIWARN->stop();
+    });
+
     // software ui -- 开始
     connect (mSoftwareUI, &SoftwareUI::stop,  SoftwareDB::getInstance(), &SoftwareDB::stop,  Qt::DirectConnection);
     connect (mSoftwareUI, &SoftwareUI::start, SoftwareDB::getInstance(), &SoftwareDB::start, Qt::DirectConnection);
