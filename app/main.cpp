@@ -22,6 +22,9 @@
 const char*             gLogPath = "/tmp/udisk-scanner.log";
 char*                   gDBPath = nullptr;
 
+char*                   gConfigScannerPath;
+char*                   gVulnerabilityScannerPath;
+
 void messageOutput (QtMsgType type, const QMessageLogContext& context, const QString& msg);
 
 int main (int argc, char* argv[])
@@ -78,8 +81,13 @@ int main (int argc, char* argv[])
         system (cmd);
         gDBPath = g_strdup_printf ("%s/../dat/db_task/EstDlpSEDataBase.db", pathDir);
         LOG_DEBUG("DB Path: %s", gDBPath);
-    }
 
+        gConfigScannerPath = g_strdup_printf ("%s/conf_check.exe", pathDir);
+        LOG_DEBUG("configure progress: %s", gConfigScannerPath);
+
+        gVulnerabilityScannerPath = g_strdup_printf ("%s/vune.exe", pathDir);
+        LOG_DEBUG("vulnerability progress: %s", gVulnerabilityScannerPath);
+    }
 
     MainWindow ew;
     ew.setWindowTitle ("数据安全检查工具——单机版");

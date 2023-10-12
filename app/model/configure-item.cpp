@@ -19,27 +19,27 @@ ConfigureItem::ConfigureItem(QString name, QString category, QString level, QStr
 
 QString ConfigureItem::getName()
 {
-    return ((nullptr == mName || mName.isEmpty()) ? "" : mName);
+    return ((nullptr == mName || mName.isEmpty()) ? "" : mName.trimmed());
 }
 
 QString ConfigureItem::getLevel()
 {
-    return ((nullptr == mLevel || mLevel.isEmpty()) ? "" : mLevel);
+    return ((nullptr == mLevel || mLevel.isEmpty()) ? "" : mLevel.trimmed());
 }
 
 QString ConfigureItem::getCategory()
 {
-    return ((nullptr == mCategory || mCategory.isEmpty()) ? "" : mCategory);
+    return ((nullptr == mCategory || mCategory.isEmpty()) ? "" : mCategory.trimmed());
 }
 
 QString ConfigureItem::getCheckMethod()
 {
-    return ((nullptr == mCheckMethod || mCheckMethod.isEmpty()) ? "" : mCheckMethod);
+    return ((nullptr == mCheckMethod || mCheckMethod.isEmpty()) ? "" : mCheckMethod.trimmed());
 }
 
 QString ConfigureItem::getRepairMethod()
 {
-    return ((nullptr == mRepairMethod || mRepairMethod.isEmpty()) ? "" : mRepairMethod);
+    return ((nullptr == mRepairMethod || mRepairMethod.isEmpty()) ? "" : mRepairMethod.trimmed());
 }
 
 bool ConfigureItem::getIsError()

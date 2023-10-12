@@ -5,17 +5,23 @@
 #include "configure-check-ui.h"
 
 #include <QLabel>
+#include <QDebug>
 #include <QPushButton>
 #include <QApplication>
-#include "../db/configure-report.h"
+
+#include "common/global.h"
+#include "db/configure-report.h"
 
 #define SOFTWARE_TITLE              "配置检查 ----------------------------------------------------------------------- %1项"
 
 ConfigureCheckUI::ConfigureCheckUI(Type type, QWidget *parent)
     : QWidget (parent), mIsChecked(false), mType(type)
 {
+    mProgress = new QProcess;
     mMainLayout = new QVBoxLayout;
     auto titleLayout = new QHBoxLayout;
+
+    mProgress->setProgram (gConfigScannerPath);
 
     mTitle = new QLabel;
     titleLayout->addWidget (mTitle);
@@ -33,12 +39,22 @@ ConfigureCheckUI::ConfigureCheckUI(Type type, QWidget *parent)
 
     mMainLayout->addLayout (titleLayout);
 
-    {
-        mDetailWidget = new QWidget;
-        mMainLayout->addWidget (mDetailWidget);
-    }
+    mDetailWidget = new QWidget;
+    auto detailLayout = new QVBoxLayout;
+    mDetailWidget->setLayout (detailLayout);
+    mMainLayout->addWidget (mDetailWidget);
 
     setLayout (mMainLayout);
+
+//    connect (mProgress, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT([=] (int extCode, QProcess::ExitStatus status) -> void {
+//        if (status == QProcess::NormalExit) {
+//            qDebug() << "正常结束...";
+//            ConfigureReport::getInstance()->start();
+//        }
+//        else {
+//            qDebug() << "不正常结束...";
+//        }
+//    }));
 
     connect (this, &ConfigureCheckUI::stop, this, [=] () -> void {
         ConfigureReport::getInstance()->stop();
@@ -50,15 +66,42 @@ ConfigureCheckUI::ConfigureCheckUI(Type type, QWidget *parent)
     });
 
     connect (this, &ConfigureCheckUI::start, this, [=] () -> void {
+        mProgress->startDetached();
+        while (!mProgress->waitForFinished (2000)) {QApplication::processEvents ();};
         ConfigureReport::getInstance()->start();
+    });
+
+    connect (this, &ConfigureCheckUI::addItem, this, [=] (const std::shared_ptr<ConfigureItem>& item) -> void {
+        if (mType == Success) {
+            ++mSuccessItem;
+            Q_EMIT updateItemCount (mSuccessItem);
+        }
+        else if (mType == Warning) {
+            ++mWarningItem;
+            Q_EMIT updateItemCount (mWarningItem);
+        }
+
+        auto itemUI = std::make_shared<ConfigureCheckItemUI>(
+            item->getName(),
+            item->getCategory(),
+            item->getLevel(),
+            item->getCheckMethod(),
+            item->getRepairMethod());
+        mItemWidget.append (itemUI);
+        detailLayout->addWidget (itemUI.get());
     });
 
     connect (this, &ConfigureCheckUI::reset, this, [=] () -> void {
         ConfigureReport::getInstance()->reset();
         for (auto& i : mItemWidget) {
-            mMainLayout->removeWidget (i.get());
+            detailLayout->removeWidget (i.get());
         }
+
+        mSuccessItem = 0;
+        mWarningItem = 0;
         mItemWidget.clear();
+
+        Q_EMIT updateItemCount ();
     });
 
     connect (this, &ConfigureCheckUI::updateItemCount, this, [=] (int count) {

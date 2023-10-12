@@ -6,6 +6,7 @@
 #define UDISKS_SCANNER_CONFIGURE_CHECK_UI_H
 #include <memory>
 #include <QWidget>
+#include <QProcess>
 #include <QVBoxLayout>
 
 #include "model/configure-item.h"
@@ -41,6 +42,8 @@ private:
     int                                             mWarningItem = 0;
 
     Type                                            mType;
+
+    QProcess*                                       mProgress;
 
     QLabel*                                         mTitle;
     QWidget*                                        mDetailWidget;

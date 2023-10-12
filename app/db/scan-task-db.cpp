@@ -132,7 +132,7 @@ void ScanTaskDBPrivate::onDBChanged()
                       "task_status "
                       "FROM scan_task;";
 
-    LOG_DEBUG("sql: %s", sql);
+//    LOG_DEBUG("sql: %s", sql);
     {
         g_return_if_fail(open());
         setRunning (true);

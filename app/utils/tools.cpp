@@ -21,6 +21,7 @@
 #include <glibtop.h>
 #include <gio/gio.h>
 #include <sys/file.h>
+#include <QApplication>
 #include <glibtop/mem.h>
 #include <glibtop/swap.h>
 #include <glibtop/sysinfo.h>
@@ -33,7 +34,10 @@ TaskDBLock::TaskDBLock()
 
 void TaskDBLock::lock()
 {
-    while (!lock1()) g_usleep (600);
+    while (!lock1()) {
+        QApplication::processEvents();
+        g_usleep (600);
+    };
 }
 
 void TaskDBLock::unlock()

@@ -59,7 +59,7 @@ MainWidget21::MainWidget21(QWidget *parent)
     auto f = qApp->font();
     f.setPointSizeF (f.pointSizeF() - 2);
     QFontMetrics fm(f);
-    static const int pSize = fm.width (" 100.0 % ");
+    static const int pSize = fm.width (" 100.0 % ") + 10;
     static const int sSize = fm.width (" 啊啊啊啊啊啊啊啊啊 ");
 
     auto mainLayout = new QVBoxLayout;
@@ -104,7 +104,7 @@ MainWidget21::MainWidget21(QWidget *parent)
     btnLayout->addStretch ();
     mainLayout->addLayout (btnLayout);
 
-    mProgress->setRange (0, 100);
+    mProgress->setRange (0, 1000);
     mProgress->setFixedHeight (10);
     mProgress->setTextVisible (false);
     progressLabel->setFixedWidth (pSize);
@@ -189,19 +189,23 @@ MainWidget21::MainWidget21(QWidget *parent)
     auto vulnerabilityDB = VulnerabilityReport::getInstance();
     connect (vulnerabilityDB, &VulnerabilityReport::addItem, this, [=] (QString& name) {
         auto item = vulnerabilityDB->getItemByKey(name);
-        g_return_if_fail(item);
+        g_return_if_fail(nullptr != item);
         Q_EMIT mVulnerabilityUIOK->addItem (item);
+        Q_EMIT mVulnerabilityUIWARN->addItem (item);
+        Q_EMIT updateCheckResult ();
     });
+
+    connect (configDB, &ConfigureReport::addItem, this, [=] (QString&) {Q_EMIT updateCheckResult (); });
 
     connect (this, &MainWidget21::updateCheckResult, this, [=] (int success, int warning) ->void {
         mSuccessItem = (mHardwareUI->getSuccessItem()
             + mSoftwareUI->getSuccessItem()
-            + (mConfigureUIWARN->getSuccessItem() + mConfigureUIOK->getSuccessItem()) / 2
-            + (mVulnerabilityUIWARN->getSuccessItem() + mVulnerabilityUIOK->getSuccessItem()) / 2);
+            + (mConfigureUIWARN->getSuccessItem() + mConfigureUIOK->getSuccessItem())
+            + (mVulnerabilityUIWARN->getSuccessItem() + mVulnerabilityUIOK->getSuccessItem()));
         mWarningItem = (mHardwareUI->getWarningItem()
             + mSoftwareUI->getWarningItem()
-            + (mConfigureUIWARN->getWarningItem() + mConfigureUIOK->getWarningItem()) / 2
-            + (mVulnerabilityUIWARN->getWarningItem() + mVulnerabilityUIOK->getWarningItem()) / 2);
+            + (mConfigureUIWARN->getWarningItem() + mConfigureUIOK->getWarningItem())
+            + (mVulnerabilityUIWARN->getWarningItem() + mVulnerabilityUIOK->getWarningItem()));
 
         RESULT_SET_TIP(Success, SUCCESS_TIP, mSuccessItem)
         RESULT_SET_TIP(Warning, WARNING_TIP, mWarningItem)
@@ -215,22 +219,27 @@ MainWidget21::MainWidget21(QWidget *parent)
         if (cur < mMinProgress) {
             cur = mMinProgress;
         }
-        else if (cur > mMaxProgress) {
+        else if (cur >= mMaxProgress) {
             cur = mMaxProgress;
         }
         else {
             cur += 1;
         }
 
-        if (mStatus == Finished) {
-            mProgress->valueChanged(100);
+        if (Finished == mStatus) {
+            mProgress->setValue (mProgress->maximum());
+            mProgressTimer->stop();
+        }
+        else if (Stop == mStatus) {
+            progressStatusLabel->setText ("");
+            mProgressTimer->stop();
         }
         else {
-            mProgress->valueChanged(cur);
+            mProgress->setValue(cur);
         }
     });
 
-    connect (mProgress, &QProgressBar::valueChanged, this, [=] (int val) {
+    connect (mProgress, &QProgressBar::valueChanged, this, [=] (int val) ->void {
         auto pec = float (val) / (float) (mProgress->maximum() - mProgress->minimum());
         pec = ((pec < 0) ? 0 : ((pec > 1) ? 1 : pec));
         progressLabel->setText((pec == 0) ? "" : QString("%1%").arg (pec * 100, 0, 'f', 1));
@@ -239,28 +248,10 @@ MainWidget21::MainWidget21(QWidget *parent)
         }
         else if (pec == 1) {
             progressStatusLabel->setText ("已完成");
-            // NOTE://
         }
         else {
             progressStatusLabel->setText ("");
         }
-
-        int valT = qRound (pec * 100);
-        if (Finished != mStatus && valT == 100) {
-            valT = 99;
-        }
-        mProgress->setValue (valT);
-
-        if (Finished == mStatus) {
-            mProgress->setValue (100);
-            mProgressTimer->stop();
-        }
-        else if (Stop == mStatus) {
-            progressStatusLabel->setText ("");
-            mProgressTimer->stop();
-        }
-
-        Q_EMIT updateCheckResult ();
     });
 
     connect (mHardwareUI, &HardwareUI::resizeUI, this, &MainWidget21::resizeResultUI);
@@ -293,6 +284,7 @@ MainWidget21::MainWidget21(QWidget *parent)
         mConfigureUIWARN->stop();
         mVulnerabilityUIOK->stop();
         mVulnerabilityUIWARN->stop();
+        Q_EMIT mStpBtn->clicked();
     });
 
     // software ui -- 开始
@@ -303,7 +295,7 @@ MainWidget21::MainWidget21(QWidget *parent)
 
     // init
     Q_EMIT updateCheckResult ();
-    Q_EMIT mProgress->valueChanged (0);
+    Q_EMIT mProgress->setValue(0);
     updateBaseInfo ();
     changeStatus (Stop);
 }
@@ -366,7 +358,7 @@ void MainWidget21::changeStatus(MainWidget21::Status status)
             mConfigureUIWARN->reset();
             mVulnerabilityUIOK->reset();
             mVulnerabilityUIWARN->reset();
-            mProgress->valueChanged (0);
+            mProgress->setValue(0);
             break;
         }
         case Running: {
@@ -377,7 +369,7 @@ void MainWidget21::changeStatus(MainWidget21::Status status)
             mChkBtn->setEnable (false);
             if (!mProgressTimer->isActive()) {
                 mProgressTimer->start();
-                mProgress->valueChanged (0);
+                mProgress->setValue(0);
 
                 mSoftwareUI->reset();
                 mConfigureUIOK->reset();
@@ -389,24 +381,27 @@ void MainWidget21::changeStatus(MainWidget21::Status status)
                 updateBaseInfo (QDateTime::currentSecsSinceEpoch());
             }
             mMinProgress = 0;
-            mMaxProgress = 5;
+            mMaxProgress = 50;
             Q_EMIT mHardwareUI->start();
-            mMinProgress = 0;
-            mMaxProgress = 20;
-            Q_EMIT mSoftwareUI->start();
-            mMinProgress = 0;
-            mMaxProgress = 40;
-            mConfigureUIOK->start();
-            mMinProgress = 0;
-            mMaxProgress = 60;
-            mConfigureUIWARN->start();
-            mMinProgress = 0;
-            mMaxProgress = 80;
+            mMinProgress = 50;
+            mMaxProgress = 200;
+//            Q_EMIT mSoftwareUI->start();
+            mMinProgress = 200;
+            mMaxProgress = 400;
+//            mConfigureUIOK->start();
+            mMinProgress = 400;
+            mMaxProgress = 600;
+//            mConfigureUIWARN->start();
+            mMinProgress = 600;
+            mMaxProgress = 800;
             mVulnerabilityUIOK->start();
-            mMinProgress = 0;
-            mMaxProgress = 99;
-            mVulnerabilityUIWARN->start();
+            qInfo() << "v ok finished!";
+            mMinProgress = 800;
+            mMaxProgress = 998;
+            mVulnerabilityUIWARN->start(false);
+            qInfo() << "v warn finished!";
             Q_EMIT allFinished();
+            qInfo() << "all finished!";
             break;
         }
         case Pause: {
@@ -466,3 +461,4 @@ void MainWidget21::resizeResultUI()
 //    hContent = ((hContent < h) ? h : hContent);
 //    mScrollWidget->setMinimumHeight(hContent);
 }
+

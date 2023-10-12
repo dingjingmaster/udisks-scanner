@@ -10,9 +10,9 @@
 #include <QTimer>
 #include <QApplication>
 
-#include "log.h"
-#include "global.h"
+#include "common/log.h"
 #include "utils/tools.h"
+#include "common/global.h"
 
 ConfigureReport* ConfigureReport::gInstance = nullptr;
 
@@ -31,7 +31,7 @@ ConfigureReport::ConfigureReport(QObject *parent)
 
     connect (this, &ConfigureReport::start, this, [=] () -> void {
         mPause = 0;
-        mTimer->start();
+        onDBChanged();
     });
 
     connect (this, &ConfigureReport::pause, this, [=] () {
@@ -40,7 +40,6 @@ ConfigureReport::ConfigureReport(QObject *parent)
 
     connect (this, &ConfigureReport::stop, this, [=] () -> void {
         mPause = 2;
-        mTimer->stop();
     });
 }
 
@@ -86,8 +85,11 @@ void ConfigureReport::onDBChanged()
     QString sql ("SELECT conf_name, conf_type, risk_level, check_method, fix_method, check_result FROM conf_info;");
     LOG_DEBUG("sql: %s", sql.toUtf8().constData());
     {
-        if (!openSqlite()) return;
+        if (!openSqlite()) {
+            return;
+        }
         {
+            qInfo () << "query db start!";
             TaskDBLock lock;
             lock.lock ();
             sqlite3_stmt *stmt = nullptr;
@@ -108,20 +110,19 @@ void ConfigureReport::onDBChanged()
                         continue;
                     }
 
-                    mLocker.lock ();
                     if (!mDataIdx.contains (name)) {
                         auto it = std::make_shared<ConfigureItem> (name, type, level, checkMethod, fixedMethod, result);
                         mData.append (it);
                         mDataIdx[name] = it;
                         Q_EMIT addItem(name);
                     }
-                    mLocker.unlock ();
                 }
                 sqlite3_finalize (stmt);
             } else {
                 qWarning () << "query db error!";
             }
         }
+        qInfo () << "query db OK!";
     }
 
     mIsRunning = 0;
