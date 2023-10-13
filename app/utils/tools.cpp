@@ -35,7 +35,6 @@ TaskDBLock::TaskDBLock()
 void TaskDBLock::lock()
 {
     while (!lock1()) {
-        QApplication::processEvents();
         g_usleep (600);
     };
 }

@@ -24,10 +24,10 @@ ConfigureReport::ConfigureReport(QObject *parent)
 
     mTimer->setInterval (3);
 
-    connect (mTimer, &QTimer::timeout, this, [=] () -> void {
-        if (mIsRunning > 0) return;
-        onDBChanged();
-    });
+//    connect (mTimer, &QTimer::timeout, this, [=] () -> void {
+//        if (mIsRunning > 0) return;
+//        onDBChanged();
+//    });
 
     connect (this, &ConfigureReport::start, this, [=] () -> void {
         mPause = 0;
@@ -80,7 +80,7 @@ void ConfigureReport::onDBChanged()
 {
     if (mPause > 0) return;
 
-    mIsRunning = 1;
+//    mIsRunning = 1;
     // check_result = 0 正常; check_result = 1 异常
     QString sql ("SELECT conf_name, conf_type, risk_level, check_method, fix_method, check_result FROM conf_info;");
     LOG_DEBUG("sql: %s", sql.toUtf8().constData());
@@ -107,6 +107,7 @@ void ConfigureReport::onDBChanged()
                     QString result (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 5)));
 
                     if (nullptr == name || name.isEmpty ()) {
+                        qDebug() << "warn: name is empty!";
                         continue;
                     }
 
@@ -130,12 +131,12 @@ void ConfigureReport::onDBChanged()
 
 void ConfigureReport::reset()
 {
-    mLocker.lock();
+//    mLocker.lock();
 
     mData.clear();
     mDataIdx.clear();
 
-    mLocker.unlock();
+//    mLocker.unlock();
 }
 
 std::shared_ptr<ConfigureItem> ConfigureReport::getItemByKey(QString &name)

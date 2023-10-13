@@ -15,7 +15,7 @@ class Process : public QThread
 public:
     explicit Process (QObject* parent=nullptr);
     void setCommand (const QString& cmd);
-    bool hasFinished();
+    bool hasFinished() const;
 
 Q_SIGNALS:
     void finished(int exitCode);

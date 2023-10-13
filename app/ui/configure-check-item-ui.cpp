@@ -19,11 +19,13 @@ ConfigureCheckItemUI::ConfigureCheckItemUI(
     auto layout = new QGridLayout;
 
     auto nameLabel = new QLabel(name);
+    nameLabel->setWordWrap (true);
     layout->addWidget (nameLabel, 1, 1, 1, 10,  Qt::AlignLeft | Qt::AlignVCenter);
 
     {
         auto label = new QLabel("类别:");
         auto value = new QLabel(category);
+        value->setWordWrap (true);
         layout->addWidget (label, 2,  1, 1, 2,  Qt::AlignRight | Qt::AlignVCenter);
         layout->addWidget (value, 2,  3, 1, 10, Qt::AlignLeft  | Qt::AlignVCenter);
     }
@@ -31,6 +33,7 @@ ConfigureCheckItemUI::ConfigureCheckItemUI(
     {
         auto label = new QLabel("等级:");
         auto value = new QLabel(level);
+        value->setWordWrap (true);
         layout->addWidget (label, 3,  1, 1, 2,  Qt::AlignRight | Qt::AlignVCenter);
         layout->addWidget (value, 3,  3, 1, 10, Qt::AlignLeft  | Qt::AlignVCenter);
     }
@@ -38,6 +41,7 @@ ConfigureCheckItemUI::ConfigureCheckItemUI(
     {
         auto label = new QLabel("检查方法:");
         auto value = new QLabel(checkMethod);
+        value->setWordWrap (true);
         layout->addWidget (label, 4,  1, 1, 2,  Qt::AlignRight | Qt::AlignVCenter);
         layout->addWidget (value, 4,  3, 1, 10, Qt::AlignLeft  | Qt::AlignVCenter);
     }
@@ -45,6 +49,7 @@ ConfigureCheckItemUI::ConfigureCheckItemUI(
     {
         auto label = new QLabel("修复建议:");
         auto value = new QLabel(repairMethod);
+        value->setWordWrap (true);
         layout->addWidget (label, 5,  1, 1, 2,  Qt::AlignRight | Qt::AlignVCenter);
         layout->addWidget (value, 5,  3, 1, 10, Qt::AlignLeft  | Qt::AlignVCenter);
     }

@@ -26,7 +26,7 @@ void Process::run()
     Q_EMIT finished (ret);
 }
 
-bool Process::hasFinished()
+bool Process::hasFinished() const
 {
     return mIsExit;
 }

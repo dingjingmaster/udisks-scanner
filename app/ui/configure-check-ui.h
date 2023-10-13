@@ -15,6 +15,8 @@
 
 class QLabel;
 class QPushButton;
+
+class Process;
 class ConfigureCheckUI : public QWidget
 {
     Q_OBJECT
@@ -29,12 +31,13 @@ public:
 Q_SIGNALS:
     void stop();
     void pause();
-    void start();
     void reset ();
+    void start(bool b=true);
 
     void addItem(std::shared_ptr<ConfigureItem>);
 
     void resizeUI();
+    void lazyUpdate(int pos=0);
     void updateItemCount(int c=0);
 
 private:
@@ -43,7 +46,7 @@ private:
 
     Type                                            mType;
 
-    QProcess*                                       mProgress;
+    Process*                                        mProgress;
 
     QLabel*                                         mTitle;
     QWidget*                                        mDetailWidget;
@@ -52,7 +55,9 @@ private:
     bool                                            mIsChecked;
     QPushButton*                                    mShowDetail;
 
-    QList<std::shared_ptr<ConfigureCheckItemUI>>    mItemWidget;
+    int                                             mShowedItem = 0;
+    QList<std::shared_ptr<ConfigureCheckItemUI>>    mWaringItemWidget;
+    QList<std::shared_ptr<ConfigureCheckItemUI>>    mSuccessItemWidget;
 };
 
 

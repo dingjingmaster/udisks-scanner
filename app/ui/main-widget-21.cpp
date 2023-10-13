@@ -177,13 +177,10 @@ MainWidget21::MainWidget21(QWidget *parent)
     auto configDB = ConfigureReport::getInstance();
     connect (configDB, &ConfigureReport::addItem, this, [=] (QString& name) {
         auto item = configDB->getItemByKey(name);
-        g_return_if_fail(item);
-        if (item->getIsError()) {
-            Q_EMIT mConfigureUIWARN->addItem (item);
-        }
-        else {
-            Q_EMIT mConfigureUIOK->addItem (item);
-        }
+        g_return_if_fail(nullptr != item);
+        Q_EMIT mConfigureUIWARN->addItem (item);
+        Q_EMIT mConfigureUIOK->addItem (item);
+        Q_EMIT updateCheckResult ();
     });
 
     auto vulnerabilityDB = VulnerabilityReport::getInstance();
@@ -194,8 +191,6 @@ MainWidget21::MainWidget21(QWidget *parent)
         Q_EMIT mVulnerabilityUIWARN->addItem (item);
         Q_EMIT updateCheckResult ();
     });
-
-    connect (configDB, &ConfigureReport::addItem, this, [=] (QString&) {Q_EMIT updateCheckResult (); });
 
     connect (this, &MainWidget21::updateCheckResult, this, [=] (int success, int warning) ->void {
         mSuccessItem = (mHardwareUI->getSuccessItem()
@@ -388,10 +383,10 @@ void MainWidget21::changeStatus(MainWidget21::Status status)
 //            Q_EMIT mSoftwareUI->start();
             mMinProgress = 200;
             mMaxProgress = 400;
-//            mConfigureUIOK->start();
+            mConfigureUIOK->start();
             mMinProgress = 400;
             mMaxProgress = 600;
-//            mConfigureUIWARN->start();
+            mConfigureUIWARN->start(false);
             mMinProgress = 600;
             mMaxProgress = 800;
             mVulnerabilityUIOK->start();

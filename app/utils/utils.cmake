@@ -7,4 +7,7 @@ file(GLOB UTILS_SRC
 
         ${CMAKE_SOURCE_DIR}/app/utils/process.h
         ${CMAKE_SOURCE_DIR}/app/utils/process.cpp
+
+        ${CMAKE_SOURCE_DIR}/app/utils/export-xlsx.h
+        ${CMAKE_SOURCE_DIR}/app/utils/export-xlsx.cpp
         )
