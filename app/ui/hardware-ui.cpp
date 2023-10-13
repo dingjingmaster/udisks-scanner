@@ -149,7 +149,7 @@ HardwareUI::HardwareUI(QWidget *parent)
             + " " + getHostPropertyByDbus ("KernelRelease");
         mSystemVersion->setText (osVersion);
 
-        auto bios = getBIOS();
+        auto bios = ::getBIOS();
         mBIOS->setText (bios);
 
         auto cpu = getCpuInfo();
@@ -205,4 +205,49 @@ int HardwareUI::getSuccessItem() const
 int HardwareUI::getWarningItem() const
 {
     return ((mWarningItem > 0) ? mWarningItem : 0);
+}
+
+QString HardwareUI::getSystemName()
+{
+    return mOperationSystemName->text().trimmed();
+}
+
+QString HardwareUI::getLanguage()
+{
+    return mLanguage->text().trimmed();
+}
+
+QString HardwareUI::getSystemManufacture()
+{
+    return mManufacturer->text().trimmed();
+}
+
+QString HardwareUI::getSystemModel()
+{
+    return mSystemVersion->text().trimmed();
+}
+
+QString HardwareUI::getBIOS()
+{
+    return mBIOS->text().trimmed();
+}
+
+QString HardwareUI::getCPU()
+{
+    return mCPU->text().trimmed();
+}
+
+QString HardwareUI::getSwap()
+{
+    return mSwap->text().trimmed();
+}
+
+QString HardwareUI::getDesktop()
+{
+    return mDesktop->text().trimmed();
+}
+
+QString HardwareUI::getMem()
+{
+    return mMem->text().trimmed();
 }

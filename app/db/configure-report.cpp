@@ -147,3 +147,11 @@ std::shared_ptr<ConfigureItem> ConfigureReport::getItemByKey(QString &name)
 
     return nullptr;
 }
+
+std::shared_ptr<ConfigureItem> ConfigureReport::getItemByID(int id)
+{
+    if (id >= 0 && id < mData.count()) {
+        return mData[id];
+    }
+    return nullptr;
+}

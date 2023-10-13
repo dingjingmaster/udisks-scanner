@@ -22,6 +22,7 @@ class ConfigureReport : public QObject
 public:
     static ConfigureReport* getInstance();
     std::shared_ptr<ConfigureItem> getItemByKey(QString& name);
+    std::shared_ptr<ConfigureItem> getItemByID (int id);
 
 private:
     explicit ConfigureReport(QObject*parent = nullptr);

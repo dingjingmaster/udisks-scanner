@@ -15,12 +15,15 @@
 #include <QApplication>
 
 #include <glib.h>
+#include <QFileDialog>
+#include <QStandardPaths>
 
 #include "push-button.h"
 #include "software-ui.h"
 #include "hardware-ui.h"
 #include "utils/tools.h"
 #include "db/software-db.h"
+#include "utils/export-xlsx.h"
 #include "configure-check-ui.h"
 #include "db/configure-report.h"
 #include "vulnerability-check-ui.h"
@@ -268,6 +271,55 @@ MainWidget21::MainWidget21(QWidget *parent)
         changeStatus (Stop);
     });
 
+    connect (mExpBtn, &PushButton::clicked, this, [=] () {
+        // 所有按钮失效
+
+        // 开始导出
+        QFileDialog dlg;
+        dlg.setDefaultSuffix (".xlsx");
+        dlg.setAcceptMode (QFileDialog::AcceptSave);
+        dlg.setDirectory (QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
+        dlg.setFileMode (QFileDialog::AnyFile);
+        if (QDialog::Accepted == dlg.exec()) {
+            auto path = dlg.selectedFiles();
+            qDebug() << "open path: " << path;
+            if (path.isEmpty()) return;
+            auto l = path.first();
+            ExportXlsx exp;
+
+            // 基础信息
+            exp.addBaseInfo ("", "脆弱性检查", g_get_host_name(), getLocalIP(), getLocalMAC(),
+                             (mStartTimeS > 0) ? QDateTime::fromSecsSinceEpoch (mStartTimeS).toString ("yyyy-MM-dd hh:mm:ss") : "",
+                             (mStopTimeS > 0) ? QDateTime::fromSecsSinceEpoch (mStopTimeS).toString ("yyyy-MM-dd hh:mm:ss") : "",
+                             QString("%1").arg (mSuccessItem + mWarningItem), QString("%1").arg (mSuccessItem), QString("%1").arg(mWarningItem),
+                             mHardwareUI->getSystemName(), mHardwareUI->getLanguage(), mHardwareUI->getSystemManufacture(),
+                             mHardwareUI->getSystemModel(), mHardwareUI->getBIOS(), mHardwareUI->getCPU(), mHardwareUI->getMem(),
+                             mHardwareUI->getSwap(), mHardwareUI->getDesktop()
+                             );
+
+            // 漏洞检查
+            int i = 0;
+            auto vulnerabilityDB = VulnerabilityReport::getInstance();
+            while (auto it = vulnerabilityDB->getItemByID (i)) {
+                exp.addVnuInfo (QString("%1").arg (++i), it->getName(), it->getNameNumber(), it->getDesc(), it->getDate(), it->getUrl());
+            }
+
+            i = 0;
+            auto configDB = ConfigureReport::getInstance();
+            while (auto it = configDB->getItemByID (i)) {
+                exp.configInfo(QString("%1").arg (++i), it->getCategory(), it->getName(), it->getLevel(), it->getCheckMethod(), it->getRepairMethod(), (it->getIsError() ? "不合格" : "合格"));
+            }
+
+            // 软件
+            i = 0;
+            auto softwareDB = SoftwareDB::getInstance();
+            while (auto it = softwareDB->getItemByIndex(i)) {
+                exp.softwareInfo(QString("%1").arg (++i), it->getCategory(), it->getName(), it->getVersion(), it->getInstallTime(), it->getInstallPath());
+            }
+            exp.save (l);
+        }
+    });
+
     connect (this, &MainWidget21::allFinished, this, [&] () {
         changeStatus (Finished);
     });
@@ -297,27 +349,24 @@ MainWidget21::MainWidget21(QWidget *parent)
 
 void MainWidget21::updateBaseInfo(qint64 startTime, qint64 stopTime)
 {
-    static qint64 startTimeS = 0;
-    static qint64 stopTimeS = 0;
-
     if (startTime > 0) {
-        startTimeS = startTime;
+        mStartTimeS = startTime;
     }
 
     if (stopTime > 0) {
-        stopTimeS = stopTime;
+        mStopTimeS = stopTime;
     }
 
     if (startTime == 0 && stopTime == 0) {
-        startTimeS = 0;
-        stopTimeS = 0;
+        mStartTimeS = 0;
+        mStopTimeS = 0;
     }
 
     mBaseInfoLabel->setText (QString("<h3>基本信息</h3>"
                                      "主机名: %1 &nbsp;&nbsp;&nbsp;&nbsp;任务名称: %2 &nbsp;&nbsp;&nbsp;&nbsp;IP地址: %3 &nbsp;&nbsp;&nbsp;&nbsp;开始时间: %4 &nbsp;&nbsp;&nbsp;&nbsp;结束时间: %5")
                                      .arg (g_get_host_name(), "脆弱性检查任务", getLocalIP(),
-                                           (startTimeS > 0) ? QDateTime::fromSecsSinceEpoch (startTimeS).toString ("yyyy-MM-dd hh:mm:ss") : "",
-                                           (stopTimeS > 0) ? QDateTime::fromSecsSinceEpoch (stopTimeS).toString ("yyyy-MM-dd hh:mm:ss") : "")
+                                           (mStartTimeS > 0) ? QDateTime::fromSecsSinceEpoch (mStartTimeS).toString ("yyyy-MM-dd hh:mm:ss") : "",
+                                           (mStopTimeS > 0) ? QDateTime::fromSecsSinceEpoch (mStopTimeS).toString ("yyyy-MM-dd hh:mm:ss") : "")
                                      );
 }
 
@@ -380,7 +429,7 @@ void MainWidget21::changeStatus(MainWidget21::Status status)
             Q_EMIT mHardwareUI->start();
             mMinProgress = 50;
             mMaxProgress = 200;
-//            Q_EMIT mSoftwareUI->start();
+            Q_EMIT mSoftwareUI->start();
             mMinProgress = 200;
             mMaxProgress = 400;
             mConfigureUIOK->start();

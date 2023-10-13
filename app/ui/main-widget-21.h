@@ -69,6 +69,9 @@ private:
     int                     mMinProgress = 0;           //
     QTimer*                 mProgressTimer = nullptr;
     QProgressBar*           mProgress = nullptr;
+
+    qint64                  mStartTimeS = 0;
+    qint64                  mStopTimeS = 0;
 };
 
 

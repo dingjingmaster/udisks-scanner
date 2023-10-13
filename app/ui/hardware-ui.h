@@ -21,6 +21,16 @@ public:
     int getSuccessItem() const;
     int getWarningItem() const;
 
+    QString getMem();
+    QString getCPU();
+    QString getSwap();
+    QString getBIOS();
+    QString getDesktop();
+    QString getLanguage();
+    QString getSystemName();
+    QString getSystemModel();
+    QString getSystemManufacture();
+
 Q_SIGNALS:
     void stop();
     void pause();
@@ -29,6 +39,7 @@ Q_SIGNALS:
     void reset();
 
     void resizeUI();
+
     void updateItemCount(int success=0, int warning=0);
 
 protected:
