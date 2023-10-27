@@ -92,12 +92,13 @@ void ConfigureReport::onDBChanged()
             qInfo () << "query db start!";
             TaskDBLock lock;
             lock.lock ();
+            qInfo () << "query db lock db start!";
             sqlite3_stmt *stmt = nullptr;
             qDebug () << sql;
             int ret = sqlite3_prepare_v2 (mDB, sql.toUtf8 ().constData (), -1, &stmt, nullptr);
             if (SQLITE_OK == ret) {
                 while (SQLITE_DONE != sqlite3_step (stmt)) {
-                    QApplication::processEvents ();
+//                    QApplication::processEvents ();
 
                     QString name (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 0)));
                     QString type (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 1)));
