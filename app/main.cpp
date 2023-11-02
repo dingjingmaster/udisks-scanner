@@ -9,6 +9,7 @@
 #include <gio/gio.h>
 
 #include <QFile>
+#include <QTimer>
 #include <QDebug>
 #include <QProcess>
 #include <QPushButton>
@@ -61,25 +62,53 @@ int main (int argc, char* argv[])
     QApplication::setPalette (palette);
 
 
-    {
-        g_autofree char* path1 = nullptr;
-        if (g_str_has_prefix(argv[0], "/")) {
-            path1 = g_strdup(argv[0]);
-        }
-        else {
-            path1 = g_strdup_printf("%s/%s", g_get_current_dir(), argv[0]);
-        }
-
-        g_return_val_if_fail(path1, -1);
-        g_autofree char* pathDir = g_path_get_dirname (path1);
-        g_return_val_if_fail(pathDir, -2);
-        g_autofree char* cmd = g_strdup_printf ("cd %s && %s/policyfilter.sh &> /dev/null", pathDir, pathDir);
-        LOG_WARNING("launch pf cmd: %s", cmd);
-        system (cmd);
-        gDBPath = g_strdup_printf ("%s/../dat/db_task/EstDlpSEDataBase.db", pathDir);
-        LOG_DEBUG("DB Path: %s", gDBPath);
+    g_autofree char* path1 = nullptr;
+    if (g_str_has_prefix(argv[0], "/")) {
+        path1 = g_strdup(argv[0]);
+    }
+    else {
+        path1 = g_strdup_printf("%s/%s", g_get_current_dir(), argv[0]);
     }
 
+    g_return_val_if_fail(path1, -1);
+    g_autofree char* pathDir = g_path_get_dirname (path1);
+    g_return_val_if_fail(pathDir, -2);
+    g_autofree char* cmd = g_strdup_printf ("cd %s && %s/policyfilter.sh &> /dev/null", pathDir, pathDir);
+    LOG_WARNING("launch pf cmd: %s", cmd);
+    system (cmd);
+    gDBPath = g_strdup_printf ("%s/../dat/db_task/EstDlpSEDataBase.db", pathDir);
+    LOG_DEBUG("DB Path: %s", gDBPath);
+
+    // 检查授权文件
+    g_autofree char* licFile = g_strdup_printf ("%s/../dat/lic_result", pathDir);
+
+    auto* tim = new QTimer;
+    tim->setInterval (1000);
+    QTimer::connect (tim, &QTimer::timeout, [=] () {
+        if (QFile::exists (licFile)) {
+            tim->stop();
+            QFile file(licFile);
+            file.open (QIODevice::ReadOnly);
+            if (file.readAll().trimmed().contains ("1")) {
+                // 未授权
+                file.close();
+                file.remove();
+                MessageBox msg ("提示", "工具无法在未受权的介质中运行!");
+                auto btn = msg.addButton ("确定");
+                QObject::connect (btn, &QPushButton::clicked, [&] (bool) {
+                    msg.done (0);
+                });
+                msg.exec();
+                ::exit (0);
+            }
+            else {
+                file.close();
+                file.remove();
+                tim->deleteLater();
+            }
+        }
+    });
+    tim->start ();
 
     MainWindow ew;
     ew.setWindowTitle ("数据安全检查工具——单机版");
