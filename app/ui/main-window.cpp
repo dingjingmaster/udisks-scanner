@@ -4,6 +4,8 @@
 
 #include "main-window.h"
 
+#include <X11/Xlib.h>
+
 #include "log.h"
 #include "main-header.h"
 #include "message-box.h"
@@ -14,6 +16,7 @@
 #include <QScreen>
 #include <QLayout>
 #include <QApplication>
+#include <QtX11Extras/QX11Info>
 
 
 MainWindow::MainWindow (QWidget *parent)
@@ -170,54 +173,54 @@ void MainWindow::mouseMoveEvent(QMouseEvent* e)
     }
 
     if (mDrag) {
-//        if (QX11Info::isPlatformX11 ()) {
-//            Display *display = QX11Info::display ();
-//            Atom netMoveResize = XInternAtom (display, "_NET_WM_MOVERESIZE", False);
-//            XEvent xEvent;
-//            const auto pos = QCursor::pos ();
-//
-//            memset (&xEvent, 0, sizeof (XEvent));
-//            xEvent.xclient.type = ClientMessage;
-//            xEvent.xclient.message_type = netMoveResize;
-//            xEvent.xclient.display = display;
-//            xEvent.xclient.window = this->winId ();
-//            xEvent.xclient.format = 32;
-//            xEvent.xclient.data.l[0] = pos.x () * dpiRatio;
-//            xEvent.xclient.data.l[1] = pos.y () * dpiRatio;
-//            xEvent.xclient.data.l[2] = 8;
-//            xEvent.xclient.data.l[3] = Button1;
-//            xEvent.xclient.data.l[4] = 0;
-//
-//            XUngrabPointer (display, CurrentTime);
-//            XSendEvent (display, QX11Info::appRootWindow (QX11Info::appScreen ()), False,
-//                        SubstructureNotifyMask | SubstructureRedirectMask, &xEvent);
-//            //XFlush(display);
-//            XEvent xevent;
-//            memset (&xevent, 0, sizeof (XEvent));
-//
-//            xevent.type = ButtonRelease;
-//            xevent.xbutton.button = Button1;
-//            xevent.xbutton.window = this->winId ();
-//            xevent.xbutton.x = e->pos ().x () * dpiRatio;
-//            xevent.xbutton.y = e->pos ().y () * dpiRatio;
-//            xevent.xbutton.x_root = pos.x () * dpiRatio;
-//            xevent.xbutton.y_root = pos.y () * dpiRatio;
-//            xevent.xbutton.display = display;
-//
-//            XSendEvent (display, this->effectiveWinId (), False, ButtonReleaseMask, &xevent);
-//            XFlush (display);
-//
-//            if (e->source () == Qt::MouseEventSynthesizedByQt) {
-//                if (!MainWindow::mouseGrabber ()) {
-//                    this->grabMouse ();
-//                    this->releaseMouse ();
-//                }
-//            }
-//            mDrag = false;
-//        }
-//        else {
+        if (QX11Info::isPlatformX11 ()) {
+            Display *display = QX11Info::display ();
+            Atom netMoveResize = XInternAtom (display, "_NET_WM_MOVERESIZE", False);
+            XEvent xEvent;
+            const auto pos = QCursor::pos ();
+
+            memset (&xEvent, 0, sizeof (XEvent));
+            xEvent.xclient.type = ClientMessage;
+            xEvent.xclient.message_type = netMoveResize;
+            xEvent.xclient.display = display;
+            xEvent.xclient.window = this->winId ();
+            xEvent.xclient.format = 32;
+            xEvent.xclient.data.l[0] = pos.x () * dpiRatio;
+            xEvent.xclient.data.l[1] = pos.y () * dpiRatio;
+            xEvent.xclient.data.l[2] = 8;
+            xEvent.xclient.data.l[3] = Button1;
+            xEvent.xclient.data.l[4] = 0;
+
+            XUngrabPointer (display, CurrentTime);
+            XSendEvent (display, QX11Info::appRootWindow (QX11Info::appScreen ()), False,
+                        SubstructureNotifyMask | SubstructureRedirectMask, &xEvent);
+            //XFlush(display);
+            XEvent xevent;
+            memset (&xevent, 0, sizeof (XEvent));
+
+            xevent.type = ButtonRelease;
+            xevent.xbutton.button = Button1;
+            xevent.xbutton.window = this->winId ();
+            xevent.xbutton.x = e->pos ().x () * dpiRatio;
+            xevent.xbutton.y = e->pos ().y () * dpiRatio;
+            xevent.xbutton.x_root = pos.x () * dpiRatio;
+            xevent.xbutton.y_root = pos.y () * dpiRatio;
+            xevent.xbutton.display = display;
+
+            XSendEvent (display, this->effectiveWinId (), False, ButtonReleaseMask, &xevent);
+            XFlush (display);
+
+            if (e->source () == Qt::MouseEventSynthesizedByQt) {
+                if (!MainWindow::mouseGrabber ()) {
+                    this->grabMouse ();
+                    this->releaseMouse ();
+                }
+            }
+            mDrag = false;
+        }
+        else {
             move ((QCursor::pos () - mOffset) * dpiRatio);
-//        }
+        }
     }
 }
 
