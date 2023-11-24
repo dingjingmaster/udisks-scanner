@@ -15,7 +15,7 @@ class ResultModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    enum { FileName = 1, FilePath, ScanTime, EnumSize };
+    enum { FileName = 1, FilePath, ScanTime, Context, EnumSize };
 public:
     explicit ResultModel (QObject *parent = nullptr);
     ~ResultModel() override;

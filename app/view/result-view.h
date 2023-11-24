@@ -13,6 +13,9 @@ class ResultView : public QTableView
 public:
     explicit ResultView(QWidget *parent = nullptr);
 
+protected:
+    void mouseMoveEvent (QMouseEvent* event) override;
+
 };
 
 

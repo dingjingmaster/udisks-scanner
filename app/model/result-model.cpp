@@ -95,6 +95,7 @@ QVariant ResultModel::data(const QModelIndex &index, int role) const
             case FileName:      return item->getFileName();
             case FilePath:      return item->getFilePath();
             case ScanTime:      return item->getFileTimeStr();
+            case Context:       return item->getContext().replace ("\n", "");
             default:            return {};
         }
     } else if (Qt::BackgroundRole == role) {
@@ -120,10 +121,11 @@ QVariant ResultModel::headerData(int section, Qt::Orientation orentation, int ro
                 return QString("文件路径");
             case 3:
                 return QString("时间");
+            case 4:
+                return QString("命中上下文");
             default:
                 break;
         }
-
     } else if (Qt::BackgroundRole == role) {
         return QColor::fromRgb(mBackgroundR, mBackgroundG, mBackgroundB);
     } else if (Qt::TextAlignmentRole == role) {

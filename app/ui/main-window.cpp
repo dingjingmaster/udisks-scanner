@@ -4,14 +4,13 @@
 
 #include "main-window.h"
 
-#include <X11/Xlib.h>
-
 #include "log.h"
 #include "main-header.h"
 #include "message-box.h"
 #include "main-widget-1.h"
 #include "main-widget-2.h"
-#include "singleton-app-gui.h"
+
+#include <X11/Xlib.h>
 
 #include <QScreen>
 #include <QLayout>

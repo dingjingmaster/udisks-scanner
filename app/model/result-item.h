@@ -13,11 +13,13 @@ public:
     ResultItem(QString id, QString fileName, QString filePath, qint64 fileTime, QObject*parent=nullptr);
 
     void setID (QString id);
+    void setContext (const QString& fileName);
     void setFileName (QString fileName);
     void setFilePath (QString filePath);
     void setFileTime (qint64 fileTime);
 
     QString getID();
+    QString getContext();
     QString getFileName();
     QString getFilePath();
     qint64 getFileTime();
@@ -25,6 +27,7 @@ public:
 
 private:
     QString                 mID;
+    QString                 mContext;
     QString                 mFileName;
     QString                 mFilePath;
     qint64                  mFileTime;

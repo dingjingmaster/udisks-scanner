@@ -28,6 +28,7 @@ Q_SIGNALS:
 private:
     QString                 mTaskID;
     const int               mItemIdxSize = 90;
+    const int               mItemNameSize = 200;
     const int               mItemTimeSize = 200;
 
     QVBoxLayout*            mMainLayout = nullptr;

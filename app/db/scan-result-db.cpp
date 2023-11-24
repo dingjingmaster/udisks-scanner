@@ -198,7 +198,7 @@ void ScanResultDBPrivate::onDBChanged()
 
     Q_Q(ScanResultDB);
 
-    QString sql = QString("SELECT sn, file_name, scan_time "
+    QString sql = QString("SELECT sn, file_name, scan_time, context "
                       " FROM udisk_scan_result WHERE task_id='%1';").arg(mTaskID);
     LOG_DEBUG("sql: %s", sql.toUtf8().constData());
     {
@@ -225,6 +225,7 @@ void ScanResultDBPrivate::onDBChanged()
                     QString id = QString("%1").arg (sqlite3_column_int64(stmt, 0));
                     QString name(reinterpret_cast<const char*> (sqlite3_column_text (stmt, 1)));
                     qint64 scanTime = sqlite3_column_int64 (stmt, 2);
+                    QString ctx(reinterpret_cast<const char*> (sqlite3_column_text (stmt, 3)));
 
                     QFileInfo fi(name);
 
@@ -249,6 +250,7 @@ void ScanResultDBPrivate::onDBChanged()
                     last -= id;
 
                     it->setID (id);
+                    it->setContext (ctx);
                     it->setFileName (fi.fileName());
                     it->setFilePath (fi.dir().absolutePath());
                     it->setFileTime (scanTime);
@@ -404,6 +406,7 @@ void ScanResultDB::exportResultByTaskID(const QString& file, const QStringList &
     // MAC(mac)， text
     // 操作系统类型(os)， text
     // 文件类型(file_exte), text
+    // 命中上下文(context), text
 
     g_return_if_fail(!ids.isEmpty());
 
@@ -416,7 +419,7 @@ void ScanResultDB::exportResultByTaskID(const QString& file, const QStringList &
 
     QString sql = QString("SELECT sn, event_ID, task_name, task_id, scan_path,"
                           " policy_name, policy_ID, severity, file_name, file_path,"
-                          " scan_time, ip, pc_name, mac, os, file_exte "
+                          " scan_time, ip, pc_name, mac, os, file_exte, context"
                           " FROM udisk_scan_result WHERE task_id IN (%1);").arg(ids.join (","));
     {
         d->open();
@@ -448,6 +451,7 @@ void ScanResultDB::exportResultByTaskID(const QString& file, const QStringList &
                     QString mac = (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 13)));
                     QString os = (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 14)));
                     QString fileExt = (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 15)));
+                    QString context = (reinterpret_cast<const char *> (sqlite3_column_text (stmt, 16)));
 
                     qDebug () << "id: " << id;
 
@@ -470,6 +474,7 @@ void ScanResultDB::exportResultByTaskID(const QString& file, const QStringList &
                               << mac.toUtf8().toStdString() << ","
                               << os.toUtf8().toStdString() << ","
                               << "\"" << fileExt.toUtf8().toStdString() << "\"" << ","
+                              << "\"" << context.toUtf8().toStdString() << "\"" << ","
                               << std::endl;
                 }
             }

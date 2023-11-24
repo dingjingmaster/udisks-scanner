@@ -19,8 +19,9 @@ add_executable(udisks-scanner main.cpp res.qrc
 target_link_libraries(udisks-scanner
         -Wl,-rpath=./lib/
         -Wl,-rpath=../lib/
+        -lX11
         ${GIO_LIBRARIES} ${SQLITE3_LIBRARIES}
-        Qt5::Widgets Qt5::Network
+        Qt5::Widgets Qt5::Network Qt5X11Extras
         )
 target_include_directories(udisks-scanner
         PRIVATE ${CMAKE_SOURCE_DIR}/app
