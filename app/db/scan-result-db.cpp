@@ -414,7 +414,8 @@ void ScanResultDB::exportResultByTaskID(const QString& file, const QStringList &
     outStream.open (file.toUtf8().toStdString(), std::ios::out | std::ios::trunc);
     outStream << "事件ID," << "任务名称," << "任务ID," << "检查路径," << "策略名称,"
               << "策略ID," << "严重性," << "文件名," << "文件路径," << "时间,"
-              << "IP," << "主机名," << "MAC," << "操作系统类型," << "文件类型"
+              << "IP," << "主机名," << "MAC," << "操作系统类型," << "文件类型,"
+              << "命中上下文,"
               << std::endl;
 
     QString sql = QString("SELECT sn, event_ID, task_name, task_id, scan_path,"
