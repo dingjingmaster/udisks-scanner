@@ -209,8 +209,7 @@ void ScanResultDBPrivate::onDBChanged()
         auto last = getCurrentResultIDs().toSet();
 
         {
-            TaskDBLock lock;
-            lock.lock();
+            TaskDBLock::getInstance()->lock();
             sqlite3_stmt* stmt = nullptr;
             qDebug() << sql;
             int ret = sqlite3_prepare_v2 (mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
@@ -260,6 +259,7 @@ void ScanResultDBPrivate::onDBChanged()
             else {
                 qWarning() << "query db error!";
             }
+            TaskDBLock::getInstance()->unlock();
         }
 
         if (!last.isEmpty()) {
@@ -372,8 +372,7 @@ void ScanResultDB::testInsertItem()
     }
 
     for (int i = 0; i < 1000000; ++i) {
-        TaskDBLock l;
-        l.lock();
+        TaskDBLock::getInstance()->lock();
         QString sql = QString("INSERT INTO `udisk_scan_result` "
                               "(`task_id`, `file_name`, `file_path`)"
                               "VALUES"
@@ -383,6 +382,7 @@ void ScanResultDB::testInsertItem()
                                        "/path/to/scan/dir/filterout/|/p/out/");
         qDebug() << sql;
         sqlite3_exec (db, sql.toUtf8().constData(), nullptr, nullptr, nullptr);
+        TaskDBLock::getInstance()->unlock();
     }
     sqlite3_close (db);
 }
@@ -426,8 +426,7 @@ void ScanResultDB::exportResultByTaskID(const QString& file, const QStringList &
         d->open();
         d->setRunning (true);
         {
-            TaskDBLock lock;
-            lock.lock();
+            TaskDBLock::getInstance()->lock();
             sqlite3_stmt* stmt = nullptr;
             qDebug() << sql;
             int ret = sqlite3_prepare_v2 (d->mDB, sql.toUtf8().constData(), -1, &stmt, nullptr);
@@ -482,6 +481,7 @@ void ScanResultDB::exportResultByTaskID(const QString& file, const QStringList &
             else {
                 qWarning() << "query db error!";
             }
+            TaskDBLock::getInstance()->unlock();
         }
         d->setRunning (false);
     }

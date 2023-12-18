@@ -10,11 +10,11 @@
 
 #define TASK_DB_LOCKER          "/tmp/.est.db.lock"
 
+
 class TaskDBLock
 {
 public:
-    TaskDBLock();
-    ~TaskDBLock();
+    static TaskDBLock* getInstance();
 
     void lock ();
     void unlock ();
@@ -24,11 +24,14 @@ private:
     void init ();
     bool lock1();
     bool unlock1();
+    TaskDBLock();
+    ~TaskDBLock();
 
 private:
-    FILE*       mFile;
-    bool        mIsLock;
-    QMutex      mLocker;
+    FILE*               mFile;
+    bool                mIsLock;
+    QMutex              mLocker;
+    static TaskDBLock*  gInstance;
 };
 
 QString getLocalIP ();

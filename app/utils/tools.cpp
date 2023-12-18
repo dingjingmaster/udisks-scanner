@@ -17,14 +17,19 @@
 #include <unistd.h>
 #include <sys/file.h>
 
+
+TaskDBLock*  TaskDBLock::gInstance = nullptr;
+
 TaskDBLock::TaskDBLock()
     : mFile(nullptr), mIsLock(false)
 {
+    init();
 }
 
 void TaskDBLock::lock()
 {
-    while (!lock1()) g_usleep (600);
+    unlock();
+    while (!lock1()) { g_usleep (600); }
 }
 
 void TaskDBLock::unlock()
@@ -58,24 +63,35 @@ bool TaskDBLock::lock1()
     init();
     g_return_val_if_fail(mFile, false);
 
-    mLocker.lock();
+    QMutexLocker l (&mLocker);
     if (0 == flock(mFile->_fileno, LOCK_EX | LOCK_NB)) {
         mIsLock = true;
     }
-    mLocker.unlock();
 
     return mIsLock;
 }
 
 bool TaskDBLock::unlock1()
 {
-    mLocker.lock();
+    QMutexLocker l (&mLocker);
     if (0 == flock (mFile->_fileno, LOCK_UN)) {
         mIsLock = false;
     }
-    mLocker.unlock();
 
     return !mIsLock;
+}
+
+TaskDBLock *TaskDBLock::getInstance()
+{
+    if (!gInstance) {
+        static QMutex lock;
+        QMutexLocker l(&lock);
+        if (!gInstance) {
+            gInstance = new TaskDBLock;
+        }
+    }
+
+    return gInstance;
 }
 
 QString getLocalIP()
