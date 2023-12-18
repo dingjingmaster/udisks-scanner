@@ -27,9 +27,13 @@
 #include <glibtop/sysinfo.h>
 #include <glibtop/sysdeps.h>
 
+
+TaskDBLock*  TaskDBLock::gInstance = nullptr;
+
 TaskDBLock::TaskDBLock()
     : mFile(nullptr), mIsLock(false)
 {
+    init();
 }
 
 void TaskDBLock::lock()
@@ -70,26 +74,23 @@ bool TaskDBLock::lock1()
     init();
     g_return_val_if_fail(mFile, false);
 
-    mLocker.lock();
+    QMutexLocker l (&mLocker);
     if (0 == flock(mFile->_fileno, LOCK_EX | LOCK_NB)) {
         mIsLock = true;
     }
-    mLocker.unlock();
 
     return mIsLock;
 }
 
 bool TaskDBLock::unlock1()
 {
-    mLocker.lock();
+    QMutexLocker l (&mLocker);
     if (0 == flock (mFile->_fileno, LOCK_UN)) {
         mIsLock = false;
     }
-    mLocker.unlock();
 
     return !mIsLock;
 }
-
 
 
 inline QString getPkgBin()
@@ -107,6 +108,19 @@ inline QString getPkgBin()
         }
     }
     return nullptr;
+}
+
+TaskDBLock *TaskDBLock::getInstance()
+{
+    if (!gInstance) {
+        static QMutex lock;
+        QMutexLocker l(&lock);
+        if (!gInstance) {
+            gInstance = new TaskDBLock;
+        }
+    }
+
+    return gInstance;
 }
 
 QString getLocalIP()

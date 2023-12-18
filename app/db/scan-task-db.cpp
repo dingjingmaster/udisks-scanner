@@ -144,20 +144,20 @@ void ScanTaskDBPrivate::onDBChanged()
         qDebug() << "current Ids: " << last;
 
         {
-            TaskDBLock lock;
-            lock.lock();
+            qDebug() << "start locke...";
+            TaskDBLock::getInstance()->lock();
+            qDebug() << "locked!";
             sqlite3_stmt* stmt = nullptr;
             int ret = sqlite3_prepare_v2 (mDB, sql, -1, &stmt, nullptr);
             if (SQLITE_OK == ret) {
                 while (SQLITE_DONE != sqlite3_step (stmt)) {
                     if (g_cancellable_is_cancelled (mCancel)) {
                         qDebug() << "cancelled";
-                        QApplication::processEvents();
+                        TaskDBLock::getInstance()->unlock();
+//                        QApplication::processEvents();
                         return;
                     }
-
-                    QApplication::processEvents();
-
+//                    QApplication::processEvents();
                     QString id(reinterpret_cast<const char*> (sqlite3_column_text (stmt, 0)));
                     QString name(reinterpret_cast<const char*> (sqlite3_column_text (stmt, 1)));
                     QString filterName(reinterpret_cast<const char*> (sqlite3_column_text (stmt, 2)));
@@ -207,6 +207,8 @@ void ScanTaskDBPrivate::onDBChanged()
             else {
                 qWarning() << "query db error!";
             }
+
+            TaskDBLock::getInstance()->unlock();
         }
 
         if (!last.isEmpty()) {
@@ -415,8 +417,7 @@ void ScanTaskDB::testInsertItem()
     }
 
     for (int i = 0; i < 1000000; ++i) {
-        TaskDBLock l;
-        l.lock();
+        TaskDBLock::getInstance()->lock();
         QString sql = QString("INSERT INTO `scan_task` "
                               "(`task_id`, `task_name`, `scan_task_filter_name`, `scan_task_dir`,"
                               " `scan_task_dir_filterout`, `task_start_time`, `task_scan_file_count`,"
@@ -433,6 +434,7 @@ void ScanTaskDB::testInsertItem()
                                   .arg (random() % 100)
                                   .arg (random() % 5);
         sqlite3_exec (db, sql.toUtf8().constData(), nullptr, nullptr, nullptr);
+        TaskDBLock::getInstance()->unlock();
     }
     sqlite3_close (db);
 }

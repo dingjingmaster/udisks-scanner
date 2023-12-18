@@ -14,6 +14,8 @@ ScannerView::ScannerView(QWidget *parent)
 {
     setMouseTracking(true);
 
+    setContentsMargins (0, 0, 0, 0);
+
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setSelectionMode(QAbstractItemView::NoSelection);
 
