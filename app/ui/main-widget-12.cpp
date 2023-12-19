@@ -66,7 +66,7 @@ MainWidget12::MainWidget12(QWidget *parent)
     mTN->setFont (font2);
     mCL = new QLabel("应用策略：策略名称1;策略名称2;策略名称3");
     mCL->setFont (font2);
-    l211->addWidget (mDW);
+//    l211->addWidget (mDW);
     l211->addWidget (mTN);
     l211->addWidget (mCL);
 

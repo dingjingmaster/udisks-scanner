@@ -90,8 +90,8 @@ void ConfigureReport::onDBChanged()
         }
         {
             qInfo () << "query db start!";
-            TaskDBLock lock;
-            lock.lock ();
+
+            TaskDBLock::getInstance()->lock();
             qInfo () << "query db lock db start!";
             sqlite3_stmt *stmt = nullptr;
             qDebug () << sql;
@@ -123,6 +123,7 @@ void ConfigureReport::onDBChanged()
             } else {
                 qWarning () << "query db error!";
             }
+            TaskDBLock::getInstance()->unlock();
         }
         qInfo () << "query db OK!";
     }
