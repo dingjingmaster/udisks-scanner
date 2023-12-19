@@ -66,7 +66,7 @@ MainWidget2::MainWidget2(QWidget *parent)
     mTN->setFont (font2);
     mCL = new QLabel("应用策略：策略名称1;策略名称2;策略名称3");
     mCL->setFont (font2);
-    l211->addWidget (mDW);
+//    l211->addWidget (mDW);
     l211->addWidget (mTN);
     l211->addWidget (mCL);
 
@@ -138,19 +138,17 @@ void MainWidget2::resizeEvent(QResizeEvent *event)
     if (!mView || !mView->horizontalHeader()) return;
 
     mView->horizontalHeader()->resizeSection (0, mItemIdxSize);
-    mView->horizontalHeader()->resizeSection (1, mItemNameSize);
     mView->horizontalHeader()->resizeSection (3, mItemTimeSize);
 
     int w = mView->width()          \
         - mItemIdxSize              \
-        - mItemNameSize             \
         - mItemTimeSize             \
         - contentsMargins().left()  \
         - contentsMargins().right() \
         - 23;
 
-    mView->horizontalHeader()->resizeSection (2, (int) (w * 0.4));
-    mView->horizontalHeader()->resizeSection (4, (int) (w * 0.6));
+    mView->horizontalHeader()->resizeSection (1, (int) (w * 0.4));
+    mView->horizontalHeader()->resizeSection (2, (int) (w * 0.6));
 
     QWidget::resizeEvent (event);
 }
