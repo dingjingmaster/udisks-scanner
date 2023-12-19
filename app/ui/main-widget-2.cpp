@@ -17,6 +17,7 @@
 #include "model/result-model.h"
 #include "model/scanner-task-item.h"
 
+extern char* gVersionPath;
 
 MainWidget2::MainWidget2(QWidget *parent)
     : QWidget (parent)
@@ -98,6 +99,16 @@ MainWidget2::MainWidget2(QWidget *parent)
     mView->setModel (mModel);
 
     auto lb = new QLabel("版权所有、版本号、咨询电话以及官网信息");
+    lb->setStyleSheet ("color:#B22222;");
+    if (gVersionPath) {
+        QFile vFile(gVersionPath);
+        if (vFile.exists() && vFile.open (QFile::ReadOnly)) {
+            QString ls = vFile.readAll();
+            ls = ls.trimmed();
+            lb->setText (ls);
+            vFile.close();
+        }
+    }
 
     l1->addWidget (btn1);
     l1->addStretch ();

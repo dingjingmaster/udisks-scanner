@@ -22,6 +22,7 @@
 
 const char*             gLogPath = "/tmp/udisk-scanner.log";
 char*                   gDBPath = nullptr;
+char*                   gVersionPath = nullptr;
 
 void messageOutput (QtMsgType type, const QMessageLogContext& context, const QString& msg);
 
@@ -78,6 +79,9 @@ int main (int argc, char* argv[])
     system (cmd);
     gDBPath = g_strdup_printf ("%s/../dat/db_task/EstDlpSEDataBase.db", pathDir);
     LOG_DEBUG("DB Path: %s", gDBPath);
+
+    gVersionPath = g_strdup_printf ("%s/../dat/.version", pathDir);
+    LOG_DEBUG("Version Path: %s", gDBPath);
 
     // 检查授权文件
     g_autofree char* licFile = g_strdup_printf ("%s/../dat/lic_result", pathDir);

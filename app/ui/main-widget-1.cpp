@@ -24,6 +24,7 @@
 #include "scanner-task-delegate.h"
 #include "model/scanner-task-model.h"
 
+extern char* gVersionPath;
 
 MainWidget1::MainWidget1(QWidget *parent)
     : QWidget(parent)
@@ -78,6 +79,16 @@ MainWidget1::MainWidget1(QWidget *parent)
     mView->setHorizontalHeader (header);
 
     auto lb = new QLabel("版权所有、版本号、咨询电话以及官网信息");
+    lb->setStyleSheet ("color:#B22222;");
+    if (gVersionPath) {
+        QFile vFile(gVersionPath);
+        if (vFile.exists() && vFile.open (QFile::ReadOnly)) {
+            QString ls = vFile.readAll();
+            ls = ls.trimmed();
+            lb->setText (ls);
+            vFile.close();
+        }
+    }
     l3->addStretch ();
     l3->addWidget (lb);
     l3->addStretch ();
