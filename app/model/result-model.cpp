@@ -78,7 +78,7 @@ int ResultModel::rowCount(const QModelIndex &parent) const
 
 int ResultModel::columnCount(const QModelIndex &parent) const
 {
-    return EnumSize;
+    return EnumSize - 1;
 }
 
 QVariant ResultModel::data(const QModelIndex &index, int role) const
@@ -121,8 +121,8 @@ QVariant ResultModel::headerData(int section, Qt::Orientation orentation, int ro
                 return QString("文件路径");
             case 3:
                 return QString("时间");
-            case 4:
-                return QString("命中上下文");
+//            case 4:
+//                return QString("命中上下文");
             default:
                 break;
         }
